@@ -4,9 +4,21 @@ module ZohoCRM
   module Fields
     class Enum < Field
       class InvalidValueError < KeyError
-        def initialize(enum: nil, value: nil)
-          message = "Invalid value #{value} for enum: #{enum.human_readable_elements}"
-          super(message, receiver: enum.elements, key: value)
+        attr_reader :enum
+        attr_reader :value
+
+        def initialize(enum:, value:)
+          @enum = enum
+          @value = value
+
+          message = "Invalid value #{value.inspect} for enum: #{enum.human_readable_elements}"
+
+          # In Ruby 2.6+ KeyError#initialize take three arguments:
+          #
+          #   super(message, receiver: enum.elements, key: value)
+          #
+          # Prior versions only accepted the message as argument.
+          super(message)
         end
       end
 
@@ -35,24 +47,35 @@ module ZohoCRM
       def value_for(object)
         value = super(object)
 
-        unless elements.key?(value.to_s) || elements.value?(value)
+        unless element?(value)
           raise InvalidValueError.new(enum: self, value: value)
         end
 
-        value
+        element(value)
       end
 
       def enum?
         true
       end
 
+      def element?(value)
+        elements.key?(value.to_s) || elements.value?(value)
+      end
+
+      def element(value)
+        return unless element?(value)
+
+        elements.fetch(value.to_s, value)
+      end
+
       def human_readable_elements
-        elements.map { |(k, v)| "#{k.inspect} (#{v.inspect})" }
+        human_elements = elements.map { |(k, v)| "#{k.inspect} (#{v.inspect})" }
+        "[#{human_elements.join(", ")}]"
       end
 
       def inspect
-        format("#<%s:%s name: %p api_name: %p field_method: %p elements: %p options: %p>",
-          self.class.name, object_id, name, api_name, field_method, human_readable_elements, options)
+        format("#<%s name: %p api_name: %p field_method: %p elements: %s options: %p>",
+          self.class.name, name, api_name, field_method, human_readable_elements, options)
       end
 
       private
@@ -61,9 +84,9 @@ module ZohoCRM
         case value
         when Array
           values = value.compact.uniq
-          Hash[values.map(&:to_s).zip(values)]
+          normalize_elements(Hash[values.zip(values)])
         when Hash
-          value
+          Hash[value.map { |(k, v)| [String(k), v] }]
         else
           normalize_elements(Array(value))
         end

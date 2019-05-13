@@ -1,6 +1,43 @@
 # frozen_string_literal: true
 
 RSpec.describe ZohoCRM::FieldSet do
+  describe ZohoCRM::FieldSet::FieldNotFoundError do
+    describe "Attributes" do
+      subject { described_class.new(:email, fields: []) }
+
+      it { is_expected.to have_attr_reader(:field_name) }
+      it { is_expected.to have_attr_reader(:fields) }
+    end
+
+    it "is a kind of KeyError" do
+      expect(described_class.new(:email, fields: [])).to be_a(KeyError)
+    end
+
+    describe "#initialize" do
+      it "requires a \"field_name\" as argument and a \"fields:\" keyword argument", aggregate_failures: true do
+        expect { described_class.new }.to raise_error(ArgumentError, /wrong number of arguments/)
+        expect { described_class.new(:email) }.to raise_error(ArgumentError, /missing keyword/)
+        expect { described_class.new(:email, fields: []) }.to_not raise_error
+      end
+
+      it "sets the \"field_name\" and \"fields\" attributes", aggregate_failures: true do
+        field_name = :email
+        fields = %i[name]
+        error = described_class.new(field_name, fields: fields)
+
+        expect(error.field_name).to eq(field_name)
+        expect(error.fields).to eq(fields)
+      end
+
+      it "builds a descriptive message" do
+        field_name = :email
+        error = described_class.new(field_name, fields: [])
+
+        expect(error.message).to match(/Field not found: #{field_name}/)
+      end
+    end
+  end
+
   describe "#[]" do
     pending "TODO: Write some tests"
   end
