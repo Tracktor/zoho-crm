@@ -33,16 +33,48 @@ RSpec.describe ZohoCRM::Utils do
         expect(options.keys.all? { |k| String === k }).to be(true)
       end
 
-      it "removes keys with blank values" do
+      it "removes keys with nil values" do
         options = described_class.normalize_options({foo: 42, bar: false, baz: "", qux: nil})
 
-        expect(options.keys).to eq(%w[foo])
+        expect(options.keys).to eq(%w[foo bar baz])
       end
 
-      it "strips whitespace from values" do
-        options = described_class.normalize_options({foo: "   42   "})
+      context "when a value is a Symbol" do
+        specify "it is converted to a String" do
+          options = described_class.normalize_options({foo: :bar})
 
-        expect(options["foo"]).to eq("42")
+          expect(options["foo"]).to eq("bar")
+        end
+      end
+
+      context "when a value is a String" do
+        specify "its leading and trailing whitespace is removed" do
+          options = described_class.normalize_options({foo: "   42   "})
+
+          expect(options["foo"]).to eq("42")
+        end
+      end
+
+      context "when a value is an Array" do
+        specify "duplicate elements are removed" do
+          options = described_class.normalize_options({foo: [:bar, :bar, "baz"]})
+
+          expect(options["foo"]).to eq([:bar, "baz"])
+        end
+
+        specify "nil values are removed" do
+          options = described_class.normalize_options({foo: [:bar, nil, "baz"]})
+
+          expect(options["foo"]).to eq([:bar, "baz"])
+        end
+      end
+
+      context "when a value is a Hash" do
+        specify "keys with nil values are removed" do
+          options = described_class.normalize_options({foo: {bar: 42, baz: nil}})
+
+          expect(options["foo"]).to eq({bar: 42})
+        end
       end
     end
   end

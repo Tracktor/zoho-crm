@@ -8,11 +8,20 @@ module ZohoCRM
       end
 
       options.to_h.each_with_object({}) do |(key, value), obj|
-        string_value = value.to_s.strip
+        case value
+        when String, Symbol
+          normalized_value = value.to_s.strip
+        when Array
+          normalized_value = value.uniq.compact
+        when Hash
+          normalized_value = value.compact
+        when NilClass
+          next
+        else
+          normalized_value = value
+        end
 
-        next unless value && !string_value.empty?
-
-        obj[key.to_s] = string_value
+        obj[key.to_s] = normalized_value
       end
     end
 
