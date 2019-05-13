@@ -290,8 +290,15 @@ RSpec.describe ZohoCRM::Model do
     it "returns a human-readable representation of the model class" do
       object = Object.new
       instance = MyZohoModel.new(object)
+      regex =
+        /
+          \A\#<MyZohoModel:#{instance.object_id}
+          \ zoho_module:\ "CustomModule"
+          \ object:\ #{Regexp.escape(object.inspect)}
+          \ fields:\ .+>\z
+        /x
 
-      expect(instance.inspect).to match(/\A#<MyZohoModel:#{instance.object_id} zoho_module: "CustomModule" object: #{object.inspect} fields: .+>\z/)
+      expect(instance.inspect).to match(regex)
     end
   end
 end

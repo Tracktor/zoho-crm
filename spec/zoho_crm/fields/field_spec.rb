@@ -342,7 +342,16 @@ RSpec.describe ZohoCRM::Fields::Field do
     subject(:field) { described_class.new(:email, :email_address, as: "Email") }
 
     it "returns a human-readable representation of the field" do
-      expect(field.inspect).to match(/\A#<#{described_class.name} name: "email" api_name: "Email" field_method: :email_address options: {}>\z/)
+      regex =
+        /
+          \A\#<#{described_class.name}
+          \ name:\ "email"
+          \ api_name:\ "Email"
+          \ field_method:\ :email_address
+          \ options:\ \{\}>\z
+        /x
+
+      expect(field.inspect).to match(regex)
     end
   end
 end
