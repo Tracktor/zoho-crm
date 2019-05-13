@@ -14,7 +14,7 @@ RSpec::Matchers.define :have_attr_reader do |field|
     "expected attr_reader for #{field} not to be defined on #{object_instance}"
   end
 
-  description do
+  description do |object_instance|
     "has attr_reader for #{field} on the #{object_instance.class} instance"
   end
 end
@@ -33,7 +33,7 @@ RSpec::Matchers.define :have_attr_writer do |field|
     "expected attr_writer for #{field} not to be defined on #{object_instance}"
   end
 
-  description do
+  description do |object_instance|
     "has attr_writer for #{field} on the #{object_instance.class} instance"
   end
 end
@@ -52,7 +52,7 @@ RSpec::Matchers.define :have_attr_accessor do |field|
     "expected attr_accessor for #{field} not to be defined on #{object_instance}"
   end
 
-  description do
+  description do |object_instance|
     "has attr_accessor for #{field} on the #{object_instance.class} instance"
   end
 end
