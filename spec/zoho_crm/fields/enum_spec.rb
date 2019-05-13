@@ -83,10 +83,6 @@ RSpec.describe ZohoCRM::Fields::Enum do
     end
   end
 
-  describe "#clear" do
-    pending "TODO: Write some tests"
-  end
-
   describe "#human_readable_elements" do
     pending "TODO: Write some tests"
   end

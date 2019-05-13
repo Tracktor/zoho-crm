@@ -46,10 +46,6 @@ module ZohoCRM
         true
       end
 
-      def clear
-        @value = nil
-      end
-
       def human_readable_elements
         elements.map { |(k, v)| "#{k.inspect} (#{v.inspect})" }
       end
