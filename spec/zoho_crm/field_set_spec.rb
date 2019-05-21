@@ -39,11 +39,105 @@ RSpec.describe ZohoCRM::FieldSet do
   end
 
   describe "#[]" do
-    pending "TODO: Write some tests"
+    it "requires a key as argument", aggregate_failures: true do
+      field_set = described_class.new
+
+      expect { field_set[] }.to raise_error(ArgumentError, /wrong number of arguments/)
+      expect { field_set[:email] }.to_not raise_error
+    end
+
+    context "when the field is found" do
+      subject(:field_set) { described_class.new }
+
+      let(:field) { ZohoCRM::Fields::Field.new(:email) }
+
+      before do
+        field_set << field
+      end
+
+      it "returns the field", aggregate_failures: true do
+        expect(field_set[:email]).to eq(field)
+        expect(field_set["email"]).to eq(field)
+        expect(field_set[field]).to eq(field)
+      end
+    end
+
+    context "when the field is not found" do
+      subject(:field_set) { described_class.new }
+
+      it "returns nil" do
+        expect(field_set[:email]).to be_nil
+      end
+    end
   end
 
   describe "#fetch" do
-    pending "TODO: Write some tests"
+    it "requires a key as argument", aggregate_failures: true do
+      field_set = described_class.new
+      field_set << ZohoCRM::Fields::Field.new(:email)
+
+      expect { field_set.fetch }.to raise_error(ArgumentError, /wrong number of arguments/)
+      expect { field_set.fetch(:email) }.to_not raise_error
+    end
+
+    it "accepts a default value as second argument" do
+      field_set = described_class.new
+      field = ZohoCRM::Fields::Field.new(:email)
+
+      expect(field_set.fetch(:email, field)).to eq(field)
+    end
+
+    it "accepts a block to evaluate the default value" do
+      field_set = described_class.new
+      field = ZohoCRM::Fields::Field.new(:email)
+
+      expect(field_set.fetch(:email) { field }).to eq(field)
+    end
+
+    it "raises an error if the key is nil", aggregate_failures: true do
+      field_set = described_class.new
+
+      expect { field_set.fetch(nil) }.to raise_error(ZohoCRM::FieldSet::FieldNotFoundError) do |error|
+        expect(error.field_name).to eq(nil)
+        expect(error.fields).to eq(field_set)
+      end
+    end
+
+    it "raises an error if the key is empty", aggregate_failures: true do
+      field_set = described_class.new
+
+      expect { field_set.fetch("") }.to raise_error(ZohoCRM::FieldSet::FieldNotFoundError) do |error|
+        expect(error.field_name).to eq("")
+        expect(error.fields).to eq(field_set)
+      end
+    end
+
+    context "when the field is found" do
+      subject(:field_set) { described_class.new }
+
+      let(:field) { ZohoCRM::Fields::Field.new(:email) }
+
+      before do
+        field_set << field
+      end
+
+      it "returns the field", aggregate_failures: true do
+        expect(field_set.fetch(:email)).to eq(field)
+        expect(field_set.fetch("email")).to eq(field)
+        expect(field_set.fetch(field)).to eq(field)
+      end
+    end
+
+    context "when the field is not found" do
+      it "raises an error if the field is not found", aggregate_failures: true do
+        field_set = described_class.new
+
+        expect { field_set.fetch(:email) }.to raise_error(ZohoCRM::FieldSet::FieldNotFoundError) do |error|
+          expect(error.field_name).to eq(:email)
+          expect(error.fields).to eq(field_set)
+        end
+      end
+    end
   end
 
   describe "#add" do
@@ -107,7 +201,36 @@ RSpec.describe ZohoCRM::FieldSet do
   end
 
   describe "#include?" do
-    pending "TODO: Write some tests"
+    it "requires a key as argument", aggregate_failures: true do
+      field_set = described_class.new
+
+      expect { field_set.include? }.to raise_error(ArgumentError, /wrong number of arguments/)
+      expect { field_set.include?(:email) }.to_not raise_error
+    end
+
+    context "when the field is found" do
+      subject(:field_set) { described_class.new }
+
+      let(:field) { ZohoCRM::Fields::Field.new(:email) }
+
+      before do
+        field_set << field
+      end
+
+      it "returns true", aggregate_failures: true do
+        expect(field_set.include?(:email)).to be(true)
+        expect(field_set.include?("email")).to be(true)
+        expect(field_set.include?(field)).to be(true)
+      end
+    end
+
+    context "when the field is not found" do
+      it "returns false" do
+        field_set = described_class.new
+
+        expect(field_set.include?(:email)).to be(false)
+      end
+    end
   end
 
   describe "#member?" do
@@ -233,7 +356,48 @@ RSpec.describe ZohoCRM::FieldSet do
   end
 
   describe "#delete" do
-    pending "TODO: Write some tests"
+    it "requires a key as argument", aggregate_failures: true do
+      field_set = described_class.new
+
+      expect { field_set.delete }.to raise_error(ArgumentError, /wrong number of arguments/)
+      expect { field_set.delete(:email) }.to_not raise_error
+    end
+
+    it "returns the field set" do
+      field_set = described_class.new
+
+      expect(field_set.delete(:email)).to equal(field_set)
+    end
+
+    context "when the field is found" do
+      subject(:field_set) { described_class.new }
+
+      let(:field) { ZohoCRM::Fields::Field.new(:email) }
+
+      before do
+        field_set << field
+      end
+
+      it "removes the field from the field set", aggregate_failures: true do
+        expect { field_set.delete(:email) }.to change(field_set, :size).by(-1)
+
+        expect(field_set.include?(:email)).to be(false)
+      end
+    end
+
+    context "when the field is not found" do
+      subject(:field_set) { described_class.new }
+
+      let(:field) { ZohoCRM::Fields::Field.new(:email) }
+
+      before do
+        field_set << field
+      end
+
+      it "doesn't remove any fields" do
+        expect { field_set.delete(:name) }.to_not change(field_set, :size)
+      end
+    end
   end
 
   describe "#delete_if" do
