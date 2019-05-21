@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/ruby:2.5
+        environment:
+          BUNDLE_JOBS: 3
+          BUNDLE_RETRY: 3
+          BUNDLE_PATH: vendor/bundle
+    steps:
+      - checkout
+
+      # Install bundler 2.0 if needed
+      - run:
+          name: "Bundler 2"
+          command: bundle --version | grep -q "version 2" || gem install bundler
+
+      - run:
+          name: "Bundle Install"
+          command: bundle install
+
+      - run:
+          name: "Run RSpec test suite"
+          command: bundle exec rspec --format progress
+          when: always
+
+      - run:
+          name: "Lint with the Standard Ruby style guide"
+          command: bundle exec standardrb --no-fix --format progress
+          when: always
