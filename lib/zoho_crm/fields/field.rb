@@ -88,6 +88,7 @@ module ZohoCRM
           false
         end
       end
+      alias == eql?
 
       def inspect
         format("#<%s name: %p api_name: %p field_method: %s options: %p>",

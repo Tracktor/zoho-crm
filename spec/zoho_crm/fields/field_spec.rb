@@ -338,6 +338,14 @@ RSpec.describe ZohoCRM::Fields::Field do
     end
   end
 
+  describe "#==" do
+    subject(:field) { described_class.new(:alias) }
+
+    it "is an alias for #eql?" do
+      expect(field.method(:==)).to eql(field.method(:eql?))
+    end
+  end
+
   describe "#inspect" do
     subject(:field) { described_class.new(:email, :email_address, as: "Email") }
 
