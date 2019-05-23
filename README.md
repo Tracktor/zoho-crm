@@ -85,6 +85,18 @@ $ rake
 
 [RSpec]: https://rspec.info/
 
+### Documentation
+
+The API documentation is generated using [YARD][]:
+
+```console
+$ rake yard
+```
+
+The documentation files will be generated under the `doc/` directory. You can browse the documentation by opening `doc/index.html` in a browser.
+
+[YARD]: https://yardoc.org/
+
 Contributing
 ------------
 
