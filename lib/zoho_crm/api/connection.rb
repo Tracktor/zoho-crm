@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-# @!macro [new] raises_authorization_errors
+# @!macro [new] raises_errors
 #   @raise [ZohoCRM::API::OAuth::Error] if the OAuth client is not authorized
-
-# @!macro [new] raises_response_errors
-#   @raise [ZohoCRM::API::HTTPRequestError,
-#           ZohoCRM::API::UnauthorizedAPIRequestError,
-#           ZohoCRM::API::APIRequestError] if the response's status has an error code
+#   @raise [ZohoCRM::API::APIRequestError] if the response's status has an error code
+#   @raise [ZohoCRM::API::HTTPTimeoutError] if the request timed out
+#   @raise [ZohoCRM::API::HTTPError] if the request encounters a connection error
 
 # @!macro [new] request_params_without_body
 #   @param headers [Hash<String=>String>] HTTP Headers
@@ -35,8 +33,7 @@ module ZohoCRM
 
       # @param uri [String] API endpoint
       # @macro request_params_without_body
-      # @macro raises_authorization_errors
-      # @macro raises_response_errors
+      # @macro raises_errors
       # @macro returns_http_response
       def get(uri, headers: {}, query: {})
         request(:get, uri, headers: headers, params: query)
@@ -44,8 +41,7 @@ module ZohoCRM
 
       # @param uri [String] API endpoint
       # @macro request_params
-      # @macro raises_authorization_errors
-      # @macro raises_response_errors
+      # @macro raises_errors
       # @macro returns_http_response
       def post(uri, headers: {}, query: {}, body: {})
         request(:post, uri, headers: headers, params: query, json: body)
@@ -82,17 +78,26 @@ module ZohoCRM
       # @option options [Hash<String=>String>] :headers HTTP Headers
       # @option options [Hash] :params query string params
       # @option options [Hash] :json JSON body
-      # @macro raises_authorization_errors
-      # @macro raises_response_errors
+      # @macro raises_errors
       # @macro returns_http_response
       def request(verb, uri, **options)
-        check_authorization!
+        if oauth_client.authorized?
+          oauth_client.refresh if oauth_client.token.expired?
+        else
+          raise ZohoCRM::API::OAuth::Error.new("The OAuth client is not authorized")
+        end
 
         response = http.request(verb, build_url(uri), options)
 
-        check_response!(response)
-
-        response
+        if response.status.success?
+          response
+        else
+          raise ZohoCRM::API::APIRequestError.new(response: response)
+        end
+      rescue HTTP::ConnectionError
+        raise ZohoCRM::API::HTTPError
+      rescue HTTP::TimeoutError
+        raise ZohoCRM::API::HTTPTimeoutError
       end
 
       # @api private
@@ -100,42 +105,6 @@ module ZohoCRM
         @http ||= ZohoCRM::API.http_client.headers({
           "Authorization" => "Zoho-oauthtoken #{oauth_client.token.access_token}",
         })
-      end
-
-      private
-
-      # Checks that the OAuth client is authorized and refresh the auth token if it's expired.
-      #
-      # @macro raises_authorization_errors
-      # @return [void]
-      # @see ZohoCRM::API::OAuth::Client#authorized?
-      def check_authorization!
-        unless oauth_client.authorized?
-          raise ZohoCRM::API::OAuth::Error.new("The OAuth client is not authorized")
-        end
-
-        if oauth_client.token.expired?
-          oauth_client.refresh
-        end
-      end
-
-      # @param response [HTTP::Response]
-      # @macro raises_response_errors
-      # @return [void]
-      def check_response!(response)
-        return if response.status.success?
-
-        status_code = ZohoCRM::API::StatusCodes[response.status.code]
-        error =
-          if status_code.nil?
-            ZohoCRM::API::HTTPRequestError.new(response: response)
-          elsif response.status.code == ZohoCRM::API::StatusCodes.authorization_error
-            ZohoCRM::API::UnauthorizedAPIRequestError.new(response: response)
-          else
-            ZohoCRM::API::APIRequestError.new(response: response)
-          end
-
-        raise error
       end
     end
   end

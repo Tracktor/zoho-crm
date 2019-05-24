@@ -8,7 +8,13 @@ module ZohoCRM
     class ConfigurationError < Error
     end
 
-    class HTTPRequestError < Error
+    class HTTPError < Error
+    end
+
+    class HTTPTimeoutError < HTTPError
+    end
+
+    class HTTPRequestError < HTTPError
       # @return [HTTP::Response]
       attr_reader :response
 
@@ -16,39 +22,25 @@ module ZohoCRM
       # @param response [HTTP::Response]
       def initialize(message = nil, response:)
         @response = response
-        super(message)
+        super(message || response.status.reason)
       end
     end
 
     class APIRequestError < HTTPRequestError
-      # @param message [String]
-      # @param response [HTTP::Response]
+      # @return [String]
+      attr_reader :code
+
+      # (see HTTPRequestError#initialize)
       def initialize(message = nil, response:)
+        body = response.parse
+
+        # This should NOT happen (it would mean that the API request actually succeeded)
+        if body.is_a?(Hash)
+          @code = body["code"]
+          message = body["message"]
+        end
+
         super(message, response: response)
-      end
-
-      # @!attribute [r] description
-      # @return [String] the error description
-      # @see ZohoCRM::API::StatusCodes::STATUS_CODES
-      def description
-        @description ||= ZohoCRM::API::StatusCodes.description(status_code)
-      rescue ZohoCRM::API::StatusCodes::UnknownStatusCodeError
-        ZohoCRM::API.config.logger.warn("Unable to retrieve the Zoho error description.")
-        @description = response.status.reason
-      end
-
-      protected
-
-      def status_code
-        @status_code ||= response.status.code
-      end
-    end
-
-    class UnauthorizedAPIRequestError < APIRequestError
-      protected
-
-      def status_code
-        :authorization_error
       end
     end
   end

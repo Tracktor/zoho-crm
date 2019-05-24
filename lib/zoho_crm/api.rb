@@ -6,7 +6,6 @@ module ZohoCRM
 end
 
 require_relative "api/errors"
-require_relative "api/status_codes"
 require_relative "api/configuration"
 require_relative "api/http_client"
 require_relative "api/connection"
