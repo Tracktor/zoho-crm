@@ -23,5 +23,11 @@ $ cp .env.example .env
 ### 3. Run the application server
 
 ```console
-$ ruby app.rb
+$ ./server
+```
+
+By default, the server will run on port 4562. You can specify another port as the first argument:
+
+```console
+$ ./server 9292
 ```
