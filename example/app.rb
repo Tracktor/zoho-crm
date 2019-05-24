@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bundler'
+require "bundler"
 Bundler.setup
 
 require "zoho_crm"
@@ -21,6 +21,14 @@ ZohoCRM::API.configure do |config|
 end
 
 oauth_client = ZohoCRM::API::OAuth::Client.new
+api_client = ZohoCRM::API::Client.new(oauth_client)
+
+helpers do
+  def oauth_client_not_authorized
+    "Zoho API not authorized. Go to /zoho/auth.\n"\
+      "You can also register this app as a client by going to /zoho/register."
+  end
+end
 
 get "/" do
   content_type :text
@@ -28,7 +36,19 @@ get "/" do
   if oauth_client.authorized?
     oauth_client.token.inspect
   else
-    "Zoho API not registered. Go to /zoho/register"
+    oauth_client_not_authorized
+  end
+end
+
+get "/contacts/:id" do
+  content_type :text
+
+  if oauth_client.authorized?
+    resp = api_client.show(params[:id], module_name: "Contacts")
+
+    resp.parse.inspect
+  else
+    oauth_client_not_authorized
   end
 end
 
@@ -37,7 +57,11 @@ get "/zoho/register" do
 end
 
 get "/zoho/auth" do
-  redirect oauth_client.authorize_url
+  if oauth_client.authorized?
+    redirect "/"
+  else
+    redirect oauth_client.authorize_url
+  end
 end
 
 get "/auth" do
