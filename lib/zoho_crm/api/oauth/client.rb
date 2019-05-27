@@ -33,7 +33,7 @@ module ZohoCRM
         # Get an access_token/refresh_token pair
         #
         # @param grant_token [String]
-        # @raise [ZohoCRM::API::HTTPRequestError] if the request fails
+        # @raise [ZohoCRM::API::OAuth::RequestError] if the request fails
         # @macro returns_oauth_token
         def create(grant_token:)
           params = {
@@ -45,7 +45,7 @@ module ZohoCRM
 
           unless response.status.success?
             message = "Failed to generate and access token and a refresh token"
-            raise ZohoCRM::API::HTTPRequestError.new(message, response: response)
+            raise ZohoCRM::API::OAuth::RequestError.new(message, response: response)
           end
 
           auth = response.parse
@@ -98,7 +98,7 @@ module ZohoCRM
 
         # Revoke the refresh token
         #
-        # @raise [ZohoCRM::API::HTTPRequestError] if the request fails
+        # @raise [ZohoCRM::API::OAuth::RequestError] if the request fails
         # @macro returns_oauth_token
         def revoke
           params = {
@@ -109,7 +109,7 @@ module ZohoCRM
 
           unless response.status.success?
             message = "Failed to revoke the refresh token"
-            raise ZohoCRM::API::HTTPRequestError.new(message, response: response)
+            raise ZohoCRM::API::OAuth::RequestError.new(message, response: response)
           end
 
           token.refresh_token = nil
