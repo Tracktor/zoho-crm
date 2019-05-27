@@ -63,12 +63,12 @@ module ZohoCRM
 
         # Generate a new access token using the refresh token
         #
-        # @raise [ZohoCRM::API::OAuth::Error] if the refresh token is missing
+        # @raise [ZohoCRM::API::OAuth::Error] if the client is not authorized
         # @raise [ZohoCRM::API::OAuth::RequestError] if the request fails
         # @macro returns_oauth_token
         def refresh
-          if token.refresh_token.to_s.empty?
-            message "A refresh token is required to generate a new access token"
+          unless authorized?
+            message = "The client needs to be authorized to generate a new access token"
             raise ZohoCRM::API::OAuth::Error.new(message, token: token)
           end
 
