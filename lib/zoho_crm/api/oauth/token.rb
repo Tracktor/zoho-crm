@@ -64,21 +64,13 @@ module ZohoCRM
         end
 
         def expires_in_sec=(value)
-          @expires_in_sec =
-            if value.nil?
-              expires_in.nil? ? nil : expires_in.to_i / 1000
-            else
-              value.to_i
-            end
+          @expires_in_sec = value.nil? ? nil : value.to_i
+          @expires_in = @expires_in_sec.nil? ? nil : @expires_in_sec * 1000
         end
 
         def expires_in=(value)
-          @expires_in =
-            if value.nil?
-              expires_in_sec.nil? ? nil : expires_in_sec.to_i * 1000
-            else
-              value.to_i
-            end
+          @expires_in = value.nil? ? nil : value.to_i
+          @expires_in_sec = @expires_in.nil? ? nil : @expires_in / 1000
         end
 
         def token_type=(value)
