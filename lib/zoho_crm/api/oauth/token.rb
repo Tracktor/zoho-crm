@@ -91,7 +91,7 @@ module ZohoCRM
             when Integer
               Time.at(value).utc
             when String
-              Time.parse(value)
+              Time.parse(value).utc
             when NilClass
               nil
             else

@@ -74,7 +74,7 @@ module ZohoCRM
 
           params = {
             grant_type: "refresh_token",
-            refresh_token: refresh_token,
+            refresh_token: token.refresh_token,
           }.merge(default_params)
 
           response = http.post(token_url, form: params)
@@ -108,7 +108,7 @@ module ZohoCRM
           end
 
           params = {
-            token: refresh_token,
+            token: token.refresh_token,
           }.merge(default_params)
 
           response = http.post("#{token_url}/revoke", form: params)
@@ -136,19 +136,22 @@ module ZohoCRM
           !token.refresh_token.to_s.empty?
         end
 
-        private
-
+        # @api private
         def http
           @http ||= ZohoCRM::API.http_client
         end
 
+        # @api private
         def oauth_url
           "#{ZohoCRM::API.config.accounts_url}/oauth/v2"
         end
 
+        # @api private
         def token_url
           "#{oauth_url}/token"
         end
+
+        private
 
         def default_params
           {
