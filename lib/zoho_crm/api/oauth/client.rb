@@ -118,7 +118,13 @@ module ZohoCRM
             raise ZohoCRM::API::OAuth::RequestError.new(message, response: response)
           end
 
+          token.access_token = nil
           token.refresh_token = nil
+          token.expires_in_sec = nil
+          token.expires_in = nil
+          token.token_type = nil
+          token.api_domain = nil
+          token.refresh_time = nil
 
           token
         end
