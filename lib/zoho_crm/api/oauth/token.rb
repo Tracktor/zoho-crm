@@ -56,11 +56,11 @@ module ZohoCRM
         end
 
         def access_token=(value)
-          @access_token = value.nil? ? nil : value.to_s
+          @access_token = value.nil? || value.to_s.empty? ? nil : value.to_s
         end
 
         def refresh_token=(value)
-          @refresh_token = value.nil? ? nil : value.to_s
+          @refresh_token = value.nil? || value.to_s.empty? ? nil : value.to_s
         end
 
         def expires_in_sec=(value)
@@ -74,11 +74,11 @@ module ZohoCRM
         end
 
         def token_type=(value)
-          @token_type = value.nil? ? nil : value.to_s
+          @token_type = value.nil? || value.to_s.empty? ? nil : value.to_s
         end
 
         def api_domain=(value)
-          @api_domain = value.nil? ? nil : value.to_s
+          @api_domain = value.nil? || value.to_s.empty? ? nil : value.to_s
         end
 
         def refresh_time=(value)
