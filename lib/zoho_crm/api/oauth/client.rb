@@ -98,9 +98,15 @@ module ZohoCRM
 
         # Revoke the refresh token
         #
+        # @raise [ZohoCRM::API::OAuth::Error] if the client is not authorized
         # @raise [ZohoCRM::API::OAuth::RequestError] if the request fails
         # @macro returns_oauth_token
         def revoke
+          unless authorized?
+            message = "The client needs to be authorized to revoke the refresh token"
+            raise ZohoCRM::API::OAuth::Error.new(message, token: token)
+          end
+
           params = {
             token: refresh_token,
           }.merge(default_params)
