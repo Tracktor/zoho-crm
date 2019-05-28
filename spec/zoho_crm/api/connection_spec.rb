@@ -204,7 +204,7 @@ RSpec.describe ZohoCRM::API::Connection do
           end
 
           it "raises an error" do
-            expect { connection.request("", "") }.to raise_error(ZohoCRM::API::APIRequestError)
+            expect { connection.request("", "") }.to raise_error(ZohoCRM::API::HTTPRequestError)
           end
         end
 

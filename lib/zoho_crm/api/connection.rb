@@ -2,7 +2,7 @@
 
 # @!macro [new] raises_errors
 #   @raise [ZohoCRM::API::OAuth::Error] if the OAuth client is not authorized
-#   @raise [ZohoCRM::API::APIRequestError] if the response's status has an error code
+#   @raise [ZohoCRM::API::HTTPRequestError] if the response's status has an error code
 #   @raise [ZohoCRM::API::HTTPTimeoutError] if the request timed out
 #   @raise [ZohoCRM::API::HTTPError] if the request encounters a connection error
 
@@ -92,7 +92,7 @@ module ZohoCRM
         if response.status.success?
           response
         else
-          raise ZohoCRM::API::APIRequestError.new(response: response)
+          raise ZohoCRM::API::HTTPRequestError.new(response: response)
         end
       rescue HTTP::ConnectionError
         raise ZohoCRM::API::HTTPError
