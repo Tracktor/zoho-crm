@@ -26,21 +26,22 @@ module ZohoCRM
       end
     end
 
-    class APIRequestError < HTTPRequestError
-      # @return [String]
-      attr_reader :code
+    class APIRequestError < Error
+      # @return [String] Zoho CRM API error code
+      attr_reader :error_code
 
-      # (see HTTPRequestError#initialize)
-      def initialize(message = nil, response:)
-        body = response.parse
+      # @return [Integer] HTTP status code
+      attr_reader :status_code
 
-        # This should NOT happen (it would mean that the API request actually succeeded)
-        if body.is_a?(Hash)
-          @code = body["code"]
-          message = body["message"]
-        end
+      # @param message [String]
+      # @param error_code [String] Zoho CRM API error code
+      # @param status_code [Integer] HTTP status code
+      def initialize(message = nil, error_code:, status_code:)
+        @error_code = error_code
+        @status_code = status_code
+        message ||= "Zoho CRM API error -- code: #{error_code.inspect} - HTTP status code: #{status_code}"
 
-        super(message, response: response)
+        super(message)
       end
     end
   end
