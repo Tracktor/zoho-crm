@@ -8,11 +8,6 @@ module ZohoCRM
         get("#{module_name}/#{record_id}")
       end
 
-      # Zoho CRM API Docs: {https://www.zoho.com/crm/help/developer/api/get-records.html Get a list of records}
-      def list(module_name:)
-        get(module_name)
-      end
-
       # Zoho CRM API Docs: {https://www.zoho.com/crm/help/developer/api/insert-records.html Insert records}
       def create(records, module_name:)
         post(module_name, body: build_body(records))

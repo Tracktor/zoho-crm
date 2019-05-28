@@ -25,22 +25,6 @@ RSpec.describe ZohoCRM::API::Client do
     end
   end
 
-  describe "#list" do
-    subject(:client) { described_class.new(spy) }
-
-    it "requires a module name" do
-      expect { client.list }.to raise_error(ArgumentError, "missing keyword: module_name")
-    end
-
-    it "performs a GET request" do
-      allow(client).to receive(:get)
-
-      client.list(module_name: "Contacts")
-
-      expect(client).to have_received(:get).with("Contacts")
-    end
-  end
-
   describe "#create" do
     subject(:client) { described_class.new(spy) }
 
