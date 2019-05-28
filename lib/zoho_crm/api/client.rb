@@ -9,18 +9,48 @@ module ZohoCRM
       #
       # @param record_id [String] the ID of the record
       # @param module_name [String] the name of the Zoho module
+      #
+      # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
+      #
+      # @return [Hash] the record attributes
       def show(record_id, module_name:)
-        get("#{module_name}/#{record_id}")
+        response = get("#{module_name}/#{record_id}")
+
+        data = response.parse.fetch("data") { [] }
+        data = data[0] || {}
+
+        if data["status"] == "error"
+          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+        end
+
+        data
       end
 
       # Add a new record to a module.
       #
       # @see https://www.zoho.com/crm/help/developer/api/insert-records.html
       #
-      # @param attributes [Array, Hash] Record attributes
+      # @param attributes [Hash] Record attributes
       # @param module_name [String] the name of the Zoho module
+      #
+      # @raise [ZohoCRM::API::Error] when trying to create more than one record
+      # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
+      #
+      # @return [String] the ID of the new record
       def create(attributes, module_name:)
-        post(module_name, body: build_body(attributes))
+        if attributes.is_a?(Array) && attributes.size > 1
+          raise ZohoCRM::API::Error.new("Can't create more than one record at a time")
+        end
+
+        response = post(module_name, body: build_body(attributes))
+        data = response.parse.fetch("data") { [] }
+        data = data[0] || {}
+
+        if data["status"] == "error"
+          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+        end
+
+        data.dig("details", "id")
       end
 
       # Update a record
@@ -30,8 +60,21 @@ module ZohoCRM
       # @param record_id [String] the ID of the record
       # @param attributes [Hash] the new record attributes
       # @param module_name [String] the name of the Zoho module
+      #
+      # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
+      #
+      # @return [Boolean]
       def update(record_id, attributes, module_name:)
-        put("#{module_name}/#{record_id}", body: build_body(attributes))
+        response = put("#{module_name}/#{record_id}", body: build_body(attributes))
+
+        data = response.parse.fetch("data") { [] }
+        data = data[0] || {}
+
+        if data["status"] == "error"
+          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+        end
+
+        data["status"] == "success"
       end
 
       # Insert or Update a record
@@ -41,11 +84,28 @@ module ZohoCRM
       # @param attributes [Hash] the record attributes
       # @param module_name [String] the name of the Zoho module
       # @param duplicate_check_fields [Array] list of fields to check against existing records
+      #
+      # @raise [ZohoCRM::API::Error] when trying to upsert more than one record
+      # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
+      #
+      # @return [String] the ID of the record
       def upsert(attributes, module_name:, duplicate_check_fields: [])
+        if attributes.is_a?(Array) && attributes.size > 1
+          raise ZohoCRM::API::Error.new("Can't upsert more than one record at a time")
+        end
+
         body = build_body(attributes)
         body[:duplicate_check_fields] = Array(duplicate_check_fields).join(",")
 
-        post("#{module_name}/upsert", body: body)
+        response = post("#{module_name}/upsert", body: body)
+        data = response.parse.fetch("data") { [] }
+        data = data[0] || {}
+
+        if data["status"] == "error"
+          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+        end
+
+        data.dig("details", "id")
       end
 
       # Delete a record
@@ -54,8 +114,21 @@ module ZohoCRM
       #
       # @param record_id [String] the ID of the record
       # @param module_name [String] the name of the Zoho module
+      #
+      # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
+      #
+      # @return [Boolean]
       def destroy(record_id, module_name:)
-        delete("#{module_name}/#{record_id}")
+        response = delete("#{module_name}/#{record_id}")
+
+        data = response.parse.fetch("data") { [] }
+        data = data[0] || {}
+
+        if data["status"] == "error"
+          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+        end
+
+        data["status"] == "success"
       end
 
       private

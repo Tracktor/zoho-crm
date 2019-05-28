@@ -17,11 +17,37 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "performs a GET request" do
-      allow(client).to receive(:get)
+      allow(client).to receive(:get).and_return(spy)
 
       client.show(42, module_name: "Contacts")
 
       expect(client).to have_received(:get).with("Contacts/42")
+    end
+
+    context "when the request succeeds" do
+      it "returns the record attributes" do
+        data = {"status" => "success", "id" => "12345678987654321"}
+
+        allow(client).to receive(:get).and_return(spy("Response", parse: {"data" => [data]}))
+
+        expect(client.show({}, module_name: "Contacts")).to eq(data)
+      end
+    end
+
+    context "when the request fails" do
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 400),
+          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+        })
+
+        allow(client).to receive(:get).and_return(fake_response)
+
+        expect { client.show("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.status_code).to eq(400)
+        end
+      end
     end
   end
 
@@ -34,19 +60,52 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "performs a POST request" do
-      allow(client).to receive(:post)
+      allow(client).to receive(:post).and_return(spy(parse: {"data" => [{}]}))
 
       client.create({}, module_name: "Contacts")
 
       expect(client).to have_received(:post).with("Contacts", body: {data: [{}]})
     end
 
-    it "can create multiple records with a single POST request" do
+    it "can't create multiple records at the same time", aggregate_failures: true do
       allow(client).to receive(:post)
 
-      client.create([{name: "John"}, {name: "Jane"}], module_name: "Contacts")
+      expect { client.create([{name: "John"}, {name: "Jane"}], module_name: "Contacts") }
+        .to raise_error(ZohoCRM::API::Error, "Can't create more than one record at a time")
 
-      expect(client).to have_received(:post).once.with("Contacts", body: {data: [{name: "John"}, {name: "Jane"}]})
+      expect(client).to_not have_received(:post)
+    end
+
+    context "when the request succeeds" do
+      let(:record_id) { "12345678987654321" }
+
+      before do
+        fake_response = spy("Response", parse: {"data" => [{"status" => "success", "details" => {"id" => record_id}}]})
+
+        allow(client).to receive(:post).and_return(fake_response)
+      end
+
+      it "returns the new record ID" do
+        expect(client.create({}, module_name: "Contacts")).to eq(record_id)
+      end
+    end
+
+    context "when the request fails" do
+      before do
+        fake_response = spy("Response", {
+          status: spy(code: 400),
+          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+        })
+
+        allow(client).to receive(:post).and_return(fake_response)
+      end
+
+      it "raises an error", aggregate_failures: true do
+        expect { client.create({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.status_code).to eq(400)
+        end
+      end
     end
   end
 
@@ -60,11 +119,37 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "performs a PUT request" do
-      allow(client).to receive(:put)
+      allow(client).to receive(:put).and_return(spy)
 
       client.update(42, {}, module_name: "Contacts")
 
       expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}]})
+    end
+
+    context "when the request succeeds" do
+      it "returns true" do
+        fake_response = spy("Response", parse: {"data" => [{"status" => "success"}]})
+
+        allow(client).to receive(:put).and_return(fake_response)
+
+        expect(client.update("42", {}, module_name: "Contacts")).to be(true)
+      end
+    end
+
+    context "when the request fails" do
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 400),
+          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+        })
+
+        allow(client).to receive(:put).and_return(fake_response)
+
+        expect { client.update("42", {}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.status_code).to eq(400)
+        end
+      end
     end
   end
 
@@ -77,26 +162,24 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "performs a POST request" do
-      allow(client).to receive(:post)
+      allow(client).to receive(:post).and_return(spy)
 
       client.upsert([{}], module_name: "Contacts")
 
       expect(client).to have_received(:post).with("Contacts/upsert", body: {data: [{}], duplicate_check_fields: ""})
     end
 
-    it "can upsert multiple records with a single POST request" do
+    it "can't upsert multiple records at the same time" do
       allow(client).to receive(:post)
 
-      client.upsert([{name: "John"}, {name: "Jane"}], module_name: "Contacts")
+      expect { client.upsert([{name: "John"}, {name: "Jane"}], module_name: "Contacts") }
+        .to raise_error(ZohoCRM::API::Error, "Can't upsert more than one record at a time")
 
-      expect(client).to have_received(:post).once.with("Contacts/upsert", body: {
-        data: [{name: "John"}, {name: "Jane"}],
-        duplicate_check_fields: "",
-      })
+      expect(client).to_not have_received(:post)
     end
 
     it "accepts a list of fields to check for existing records" do
-      allow(client).to receive(:post)
+      allow(client).to receive(:post).and_return(spy)
 
       client.upsert([{}], module_name: "Contacts", duplicate_check_fields: %w[email last_name])
 
@@ -116,11 +199,35 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "performs a DELETE request" do
-      allow(client).to receive(:delete)
+      allow(client).to receive(:delete).and_return(spy)
 
       client.destroy(42, module_name: "Contacts")
 
       expect(client).to have_received(:delete).with("Contacts/42")
+    end
+
+    context "when the request succeeds" do
+      it "returns true" do
+        allow(client).to receive(:delete).and_return(spy("Response", parse: {"data" => [{"status" => "success"}]}))
+
+        expect(client.destroy(42, module_name: "Contacts")).to be(true)
+      end
+    end
+
+    context "when the request fails" do
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 400),
+          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+        })
+
+        allow(client).to receive(:delete).and_return(fake_response)
+
+        expect { client.destroy("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.status_code).to eq(400)
+        end
+      end
     end
   end
 end
