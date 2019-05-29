@@ -166,7 +166,7 @@ RSpec.describe ZohoCRM::API::Client do
 
       client.upsert([{}], module_name: "Contacts")
 
-      expect(client).to have_received(:post).with("Contacts/upsert", body: {data: [{}], duplicate_check_fields: ""})
+      expect(client).to have_received(:post).with("Contacts/upsert", body: {data: [{}], duplicate_check_fields: []})
     end
 
     it "can't upsert multiple records at the same time" do
@@ -185,7 +185,7 @@ RSpec.describe ZohoCRM::API::Client do
 
       expect(client).to have_received(:post).with("Contacts/upsert", body: {
         data: [{}],
-        duplicate_check_fields: "email,last_name",
+        duplicate_check_fields: %w[email last_name],
       })
     end
   end

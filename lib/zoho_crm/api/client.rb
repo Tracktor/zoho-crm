@@ -95,7 +95,7 @@ module ZohoCRM
         end
 
         body = build_body(attributes)
-        body[:duplicate_check_fields] = Array(duplicate_check_fields).join(",")
+        body[:duplicate_check_fields] = Array(duplicate_check_fields)
 
         response = post("#{module_name}/upsert", body: body)
         data = response.parse.fetch("data") { [] }
