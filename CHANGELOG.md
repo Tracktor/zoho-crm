@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+[v0.2.0](https://github.com/Tracktor/zoho-crm/tree/v0.2.0) (2019-05-29)
+-----------------------------------------------------------------------
 
 - Add a requirement for Ruby 2.5 or greater.
 - Allow the gem to be required with `"zoho-crm"` or `"zoho_crm"`.
