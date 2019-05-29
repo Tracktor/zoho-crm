@@ -3,11 +3,12 @@
 require "bundler"
 Bundler.setup
 
+require "pp"
+require "json"
+
 require "zoho_crm"
 require "dotenv/load"
 require "sinatra"
-require "pp"
-require "json"
 
 ZohoCRM::API.configure do |config|
   config.region = "eu"
