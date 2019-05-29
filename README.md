@@ -14,13 +14,13 @@ Installation
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "zoho-crm", require: "zoho_crm"
+gem "zoho-crm"
 ```
 
 And then execute:
 
 ```console
-$ bundle
+$ bundle install
 ```
 
 Usage
