@@ -107,6 +107,12 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version and push git commits and tags.
 
+The default Rake task is setup to run the test suite then link the code:
+
+```console
+$ rake
+```
+
 ### Dependencies
 
 Development dependencies are in the gem specification — see the [`zoho-crm.gemspec`](./zoho-crm.gemspec) file. If you need to add a dependency, add it to that file. **Do not add any gem to the Gemfile**.
@@ -133,10 +139,10 @@ $ rake standard:fix
 
 ### Tests
 
-Tests are written using [RSpec][]. The default Rake task is setup to run the test suite:
+Tests are written using [RSpec][]. You can run the test suite using the dedicated Rake task:
 
 ```console
-$ rake
+$ rake spec
 ```
 
 [RSpec]: https://rspec.info/

@@ -8,4 +8,4 @@ require "standard/rake"
 RSpec::Core::RakeTask.new(:spec)
 YARD::Rake::YardocTask.new
 
-task default: :spec
+task default: [:spec, :standard]
