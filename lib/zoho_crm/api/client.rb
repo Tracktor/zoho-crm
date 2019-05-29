@@ -88,7 +88,9 @@ module ZohoCRM
       # @raise [ZohoCRM::API::Error] when trying to upsert more than one record
       # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
       #
-      # @return [String] the ID of the record
+      # @return [Hash{String => Boolean,String}] a Hash with two keys:
+      #   - <b>+new_record+</b> (+Boolean+) — +true+ if the record was created, +false+ if it was updated
+      #   - <b>+id+</b> (+String+) — the ID of the record
       def upsert(attributes, module_name:, duplicate_check_fields: [])
         if attributes.is_a?(Array) && attributes.size > 1
           raise ZohoCRM::API::Error.new("Can't upsert more than one record at a time")
@@ -105,7 +107,7 @@ module ZohoCRM
           raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
         end
 
-        data.dig("details", "id")
+        {"new_record" => data["action"] == "insert", "id" => data.dig("details", "id")}
       end
 
       # Delete a record

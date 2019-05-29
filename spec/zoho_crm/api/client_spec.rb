@@ -188,6 +188,62 @@ RSpec.describe ZohoCRM::API::Client do
         duplicate_check_fields: %w[email last_name],
       })
     end
+
+    context "when the request succeeds" do
+      context "when a new record was created" do
+        let(:record_id) { "12345678987654321" }
+
+        before do
+          fake_response = spy("Response", parse: {"data" => [{
+            "status" => "success",
+            "action" => "insert",
+            "details" => {"id" => record_id},
+          }]})
+
+          allow(client).to receive(:post).and_return(fake_response)
+        end
+
+        it "returns a Hash with the :new_record key set to true" do
+          expect(client.upsert({}, module_name: "Contacts"))
+            .to eq({"new_record" => true, "id" => record_id})
+        end
+      end
+
+      context "when an existing record was updated" do
+        let(:record_id) { "12345678987654321" }
+
+        before do
+          fake_response = spy("Response", parse: {"data" => [{
+            "status" => "success",
+            "action" => "update",
+            "details" => {"id" => record_id},
+          }]})
+
+          allow(client).to receive(:post).and_return(fake_response)
+        end
+
+        it "returns a Hash with the :new_record key set to false" do
+          expect(client.upsert({}, module_name: "Contacts"))
+            .to eq({"new_record" => false, "id" => record_id})
+        end
+      end
+    end
+
+    context "when the request fails" do
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 400),
+          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+        })
+
+        allow(client).to receive(:post).and_return(fake_response)
+
+        expect { client.upsert({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.status_code).to eq(400)
+        end
+      end
+    end
   end
 
   describe "#destroy" do
