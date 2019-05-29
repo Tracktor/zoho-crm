@@ -26,7 +26,7 @@ module ZohoCRM
         data
       end
 
-      # Add a new record to a module.
+      # Create a new record
       #
       # @see https://www.zoho.com/crm/help/developer/api/insert-records.html
       #

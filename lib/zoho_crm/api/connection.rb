@@ -7,7 +7,7 @@
 #   @raise [ZohoCRM::API::HTTPError] if the request encounters a connection error
 
 # @!macro [new] request_params_without_body
-#   @param headers [Hash<String=>String>] HTTP Headers
+#   @param headers [Hash{String => String}] HTTP Headers
 #   @param query [Hash] query string params
 
 # @!macro [new] request_params
@@ -75,7 +75,7 @@ module ZohoCRM
       # @param verb [Symbol] HTTP verb
       # @param uri [String] API endpoint
       # @param options Request options
-      # @option options [Hash<String=>String>] :headers HTTP Headers
+      # @option options [Hash{String => String}] :headers HTTP Headers
       # @option options [Hash] :params query string params
       # @option options [Hash] :json JSON body
       # @macro raises_errors
