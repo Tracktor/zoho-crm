@@ -28,6 +28,8 @@ Usage
 
 ### Quickstart
 
+#### `ZohoCRM::Model`
+
 ```ruby
 require "zoho_crm"
 
@@ -43,6 +45,60 @@ user = User.new(email: "john.smith@example.com", first_name: "John", last_name: 
 zoho_user = ZohoUser.new(user)
 json = zoho_user.as_json
 ```
+
+---
+
+#### `ZohoCRM::API`
+
+```ruby
+require "zoho_crm"
+
+ZohoCRM::API.configure do |config|
+  config.region = "eu"
+  config.sandbox = true
+
+  config.client_id = ENV["ZOHO_CRM_API_CLIENT_ID"]
+  config.client_secret = ENV["ZOHO_CRM_API_CLIENT_SECRET"]
+  config.redirect_url = ENV["ZOHO_CRM_REDIRECT_URI"]
+  config.scopes = %w[
+    ZohoCRM.modules.all
+  ]
+end
+
+oauth_client = ZohoCRM::API::OAuth::Client.new
+api_client = ZohoCRM::API::Client.new(oauth_client)
+
+# OAuth authorization flow... (see the example app)
+
+# Get a record
+api_client.show("12345", module_name: "Contacts")
+
+# Create a new record
+contact_attributes = {
+  "Email" => "hello.world@example.com",
+  "First_Name" => "Mister",
+  "Last_Name" => "World",
+  "Phone" => "+33 6 12 34 56 78",
+}
+api_client.create(contact_attributes, module_name: "Contacts")
+
+# Update a record
+api_client.update("12345", {"First_name" => "John"}, module_name: "Contacts")
+
+# Insert or Update a record (Upsert)
+contact_attributes = {
+  "Email" => "hello.world@example.com",
+  "First_Name" => "Mister",
+  "Last_Name" => "World",
+  "Phone" => "+33 6 12 34 56 78",
+}
+api_client.upsert(contact_attributes, module_name: "Contacts", duplicate_check_fields: ["Email"])
+
+# Delete a record
+api_client.destroy("12345", module_name: "Contacts")
+```
+
+For a more complete example, look at the [example application](./example).
 
 Development
 -----------
