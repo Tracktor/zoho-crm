@@ -38,7 +38,7 @@ module ZohoCRM
         # @option attributes [Integer] "expires_in"
         # @option attributes [String] "token_type"
         # @option attributes [String] "api_domain"
-        # @option attributes [Time, Date, DateTime, Integer, String] "api_domain"
+        # @option attributes [Time, Date, DateTime, Integer, String] "refresh_time"
         def initialize(attributes = {})
           self.access_token = attributes["access_token"]
           self.refresh_token = attributes["refresh_token"]
