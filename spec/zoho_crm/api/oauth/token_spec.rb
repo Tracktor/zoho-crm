@@ -12,6 +12,30 @@ RSpec.describe ZohoCRM::API::OAuth::Token do
     it { is_expected.to have_attr_accessor(:refresh_time) }
   end
 
+  describe ".from_json" do
+    let(:attributes) do
+      {
+        "access_token" => SecureRandom.hex,
+        "refresh_token" => SecureRandom.hex,
+        "expires_in_sec" => 3600,
+        "expires_in" => 3600000,
+        "token_type" => "Bearer",
+        "api_domain" => "example.com",
+      }
+    end
+
+    it "returns an instance of #{described_class}" do
+      expect(described_class.from_json('{}')).to be_an_instance_of(described_class)
+    end
+
+    it "parses the JSON string and builds a token with the provided attributes" do
+      json_string = JSON.fast_generate(attributes)
+
+      expect(described_class.from_json(json_string))
+        .to have_attributes(attributes)
+    end
+  end
+
   describe "#initialize" do
     let(:attributes) do
       {
@@ -392,6 +416,61 @@ RSpec.describe ZohoCRM::API::OAuth::Token do
       it "raises an error" do
         expect { token.refresh_time = {time: 42} }.to raise_error(TypeError, "no implicit conversion of Hash into Time")
       end
+    end
+  end
+
+  describe "#from_json" do
+    subject(:token) { described_class.new }
+
+    let(:attributes) do
+      {
+        "access_token" => SecureRandom.hex,
+        "refresh_token" => SecureRandom.hex,
+        "expires_in_sec" => 3600,
+        "expires_in" => 3600000,
+        "token_type" => "Bearer",
+        "api_domain" => "example.com",
+      }
+    end
+
+    it "returns self" do
+      expect(token.from_json('{}')).to eq(token)
+    end
+
+    it "parses the JSON string and updates the token attributes" do
+      json_string = JSON.fast_generate(attributes)
+
+      expect { token.from_json(json_string) }
+        .to change { token.access_token }.to(attributes["access_token"])
+        .and change { token.refresh_token }.to(attributes["refresh_token"])
+        .and change { token.expires_in_sec }.to(attributes["expires_in_sec"])
+        .and change { token.expires_in }.to(attributes["expires_in"])
+        .and change { token.token_type }.to(attributes["token_type"])
+        .and change { token.api_domain }.to(attributes["api_domain"])
+    end
+
+    it "parses the JSON string and builds a token with the provided attributes" do
+      expect(described_class.from_json(JSON.fast_generate(attributes)))
+        .to have_attributes(attributes)
+    end
+  end
+
+  describe "#to_json" do
+    let(:attributes) do
+      {
+        "access_token" => SecureRandom.hex,
+        "refresh_token" => SecureRandom.hex,
+        "expires_in_sec" => 3600,
+        "expires_in" => 3600000,
+        "token_type" => "Bearer",
+        "api_domain" => "example.com",
+      }
+    end
+
+    let(:token) { described_class.new(attributes) }
+
+    it "returns a JSON string" do
+      expect(token.to_json).to eq(JSON.dump(attributes))
     end
   end
 end

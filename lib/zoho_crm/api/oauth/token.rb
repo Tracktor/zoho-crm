@@ -31,6 +31,19 @@ module ZohoCRM
         #   @return [Time] The UTC time when the access token was last refreshed
         attr_reader :refresh_time
 
+        # Parse the JSON string and builds a token with the provided attributes
+        #
+        # @note The JSON string must be an object so that it will be parsed into a +Hash+
+        #
+        # @param json_string [String] JSON string to parse
+        #
+        # @return [ZohoCRM::API::OAuth::Token] a new token
+        def self.from_json(json_string)
+          attributes = JSON.parse(json_string)
+
+          new(attributes)
+        end
+
         # @param attributes [Hash] Token attributes
         # @option attributes [String] "access_token"
         # @option attributes [String] "refresh_token"
@@ -97,6 +110,37 @@ module ZohoCRM
             else
               raise TypeError.new("no implicit conversion of #{value.class} into Time")
             end
+        end
+
+        # Sets the token attributes from a JSON string.
+        #
+        # @param json_string [String] JSON string to parse
+        #
+        # @return [self]
+        def from_json(json_string)
+          attributes = JSON.parse(json_string)
+
+          self.access_token = attributes["access_token"]
+          self.refresh_token = attributes["refresh_token"]
+          self.expires_in_sec = attributes["expires_in_sec"]
+          self.expires_in = attributes["expires_in"]
+          self.token_type = attributes["token_type"]
+          self.api_domain = attributes["api_domain"]
+          self
+        end
+
+        # Dump the token to a JSON string
+        #
+        # @return [String] a JSON string
+        def to_json(*args)
+          {
+            "access_token" => access_token,
+            "refresh_token" => refresh_token,
+            "expires_in_sec" => expires_in_sec,
+            "expires_in" => expires_in,
+            "token_type" => token_type,
+            "api_domain" => api_domain,
+          }.to_json(*args)
         end
       end
     end
