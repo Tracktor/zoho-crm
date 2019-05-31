@@ -25,7 +25,7 @@ RSpec.describe ZohoCRM::API::OAuth::Token do
     end
 
     it "returns an instance of #{described_class}" do
-      expect(described_class.from_json('{}')).to be_an_instance_of(described_class)
+      expect(described_class.from_json("{}")).to be_an_instance_of(described_class)
     end
 
     it "parses the JSON string and builds a token with the provided attributes" do
@@ -434,7 +434,7 @@ RSpec.describe ZohoCRM::API::OAuth::Token do
     end
 
     it "returns self" do
-      expect(token.from_json('{}')).to eq(token)
+      expect(token.from_json("{}")).to eq(token)
     end
 
     it "parses the JSON string and updates the token attributes" do
