@@ -419,6 +419,33 @@ RSpec.describe ZohoCRM::API::OAuth::Token do
     end
   end
 
+  describe "#to_h" do
+    let(:attributes) do
+      {
+        "access_token" => SecureRandom.hex,
+        "refresh_token" => SecureRandom.hex,
+        "expires_in_sec" => 3600,
+        "expires_in" => 3600000,
+        "token_type" => "Bearer",
+        "api_domain" => "example.com",
+      }
+    end
+
+    let(:token) do
+      described_class.new(attributes).tap do |t|
+        t.refresh_time = Time.now
+      end
+    end
+
+    it "returns a Hash representation of the token" do
+      expect(token.to_h).to eq(attributes)
+    end
+
+    it "is aliased as #to_hash" do
+      expect(token.method(:to_hash)).to eql(token.method(:to_h))
+    end
+  end
+
   describe "#from_json" do
     subject(:token) { described_class.new }
 

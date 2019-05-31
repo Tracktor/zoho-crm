@@ -112,6 +112,18 @@ module ZohoCRM
             end
         end
 
+        def to_h
+          {
+            "access_token" => access_token,
+            "refresh_token" => refresh_token,
+            "expires_in_sec" => expires_in_sec,
+            "expires_in" => expires_in,
+            "token_type" => token_type,
+            "api_domain" => api_domain,
+          }
+        end
+        alias to_hash to_h
+
         # Sets the token attributes from a JSON string.
         #
         # @param json_string [String] JSON string to parse

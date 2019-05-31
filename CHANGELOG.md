@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.2.2](https://github.com/Tracktor/zoho-crm/tree/v0.2.2) (2019-05-31)
+-----------------------------------------------------------------------
+
+### Features
+
+- Add the `#to_h`/`#to_hash` methods to the `ZohoCRM::API::OAuth::Token` class.
+
 [v0.2.1](https://github.com/Tracktor/zoho-crm/tree/v0.2.1) (2019-05-31)
 -----------------------------------------------------------------------
 
