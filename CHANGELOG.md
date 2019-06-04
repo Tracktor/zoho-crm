@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.2.3](https://github.com/Tracktor/zoho-crm/tree/v0.2.3) (2019-06-04)
+-----------------------------------------------------------------------
+
+### Features
+
+- Add the `ZohoCRM::Model.zoho_enum` method to add enum fields to a model.
+
 [v0.2.2](https://github.com/Tracktor/zoho-crm/tree/v0.2.2) (2019-05-31)
 -----------------------------------------------------------------------
 
