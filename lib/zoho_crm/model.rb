@@ -26,6 +26,16 @@ module ZohoCRM
         zoho_fields.add(field)
       end
 
+      def zoho_enum(name, elements, field_method = nil, **options, &block)
+        field = ZohoCRM::Fields::Enum.new(name, elements, field_method, **options, &block)
+
+        unless method_defined?(field.name)
+          define_method(field.name) { value_for(field) }
+        end
+
+        zoho_fields.add(field)
+      end
+
       def field(name)
         zoho_fields.fetch(name)
       end

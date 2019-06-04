@@ -84,6 +84,29 @@ RSpec.describe ZohoCRM::Model do
     end
   end
 
+  describe ".zoho_enum" do
+    it 'requires a "field_name" and a list of "elements"', aggregate_failures: true do
+      model = Class.new(described_class)
+
+      expect { model.zoho_enum }.to raise_error(ArgumentError)
+      expect { model.zoho_enum(:status) }.to raise_error(ArgumentError)
+      expect { model.zoho_enum(:status, %w[enabled disabled]) }.to_not raise_error
+    end
+
+    it "defines a method with the given name" do
+      model = Class.new(described_class) { zoho_enum(:status, %w[enabled disabled]) }
+
+      expect(model.method_defined?(:status)).to be(true)
+    end
+
+    it "adds a zoho field", aggregate_failures: true do
+      model = Class.new(described_class)
+
+      expect { model.zoho_enum(:status, %w[enabled disabled]) }.to change { model.zoho_fields.size }.by(1)
+      expect(model.zoho_fields).to include(:status)
+    end
+  end
+
   describe ".field" do
     context "when the field exists" do
       subject(:model) { Class.new(described_class) { zoho_field(:first_name) } }
