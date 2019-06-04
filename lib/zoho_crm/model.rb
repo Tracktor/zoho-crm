@@ -16,8 +16,8 @@ module ZohoCRM
         @zoho_fields ||= FieldSet.new
       end
 
-      def zoho_field(name, value = nil, **options, &block)
-        field = ZohoCRM::Fields::Field.new(name, value, **options, &block)
+      def zoho_field(name, field_method = nil, **options, &block)
+        field = ZohoCRM::Fields::Field.new(name, field_method, **options, &block)
 
         unless method_defined?(field.name)
           define_method(field.name) { value_for(field) }
