@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[v0.2.4](https://github.com/Tracktor/zoho-crm/tree/v0.2.4) (2019-07-05)
+-----------------------------------------------------------------------
+
+### Enhancements
+
+- Add more info to the `ZohoCRM::API::APIRequestError` class using additional parameters:
+  - `details`: A `Hash` containing details related to the error.
+  - `response`: The `HTTP::Response` response object.
+
 [v0.2.3](https://github.com/Tracktor/zoho-crm/tree/v0.2.3) (2019-06-04)
 -----------------------------------------------------------------------
 
