@@ -19,6 +19,9 @@ ZohoCRM::API.configure do |config|
   config.redirect_url = ENV["ZOHO_CRM_REDIRECT_URI"]
   config.scopes = %w[
     ZohoCRM.modules.all
+    ZohoCRM.settings.fields.READ
+    ZohoCRM.settings.custom_views.READ
+    ZohoCRM.settings.modules.READ
   ]
 end
 
@@ -32,6 +35,20 @@ helpers do
     halt 401, {"Content-Type" => "text/plain"},
       "Zoho API not authorized. Go to /zoho/auth.\n"\
       "You can also register this app as a client by going to /zoho/register."
+  end
+end
+
+get "/fields/:module_name" do
+  content_type :json
+
+  if oauth_client.authorized?
+    response = api_client.get("settings/fields", query: {module: params[:module_name]})
+
+    data = response.parse["fields"].map { |f| [f["field_label"], f["api_name"]] }
+
+    JSON.pretty_generate(Hash[data])
+  else
+    oauth_client_not_authorized
   end
 end
 
