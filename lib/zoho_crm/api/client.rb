@@ -20,7 +20,12 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+          raise ZohoCRM::API::APIRequestError.new(
+            error_code: data["code"],
+            details: data["details"],
+            status_code: response.status.code,
+            response: response
+          )
         end
 
         data
@@ -47,7 +52,12 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+          raise ZohoCRM::API::APIRequestError.new(
+            error_code: data["code"],
+            details: data["details"],
+            status_code: response.status.code,
+            response: response
+          )
         end
 
         data.dig("details", "id")
@@ -71,7 +81,12 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+          raise ZohoCRM::API::APIRequestError.new(
+            error_code: data["code"],
+            details: data["details"],
+            status_code: response.status.code,
+            response: response
+          )
         end
 
         data["status"] == "success"
@@ -104,7 +119,12 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+          raise ZohoCRM::API::APIRequestError.new(
+            error_code: data["code"],
+            details: data["details"],
+            status_code: response.status.code,
+            response: response
+          )
         end
 
         {"new_record" => data["action"] == "insert", "id" => data.dig("details", "id")}
@@ -127,7 +147,12 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(error_code: data["code"], status_code: response.status.code)
+          raise ZohoCRM::API::APIRequestError.new(
+            error_code: data["code"],
+            details: data["details"],
+            status_code: response.status.code,
+            response: response
+          )
         end
 
         data["status"] == "success"

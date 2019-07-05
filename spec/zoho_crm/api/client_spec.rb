@@ -37,15 +37,17 @@ RSpec.describe ZohoCRM::API::Client do
     context "when the request fails" do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
-          status: spy(code: 400),
-          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
         })
 
         allow(client).to receive(:get).and_return(fake_response)
 
         expect { client.show("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
-          expect(error.status_code).to eq(400)
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
         end
       end
     end
@@ -91,19 +93,19 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     context "when the request fails" do
-      before do
+      it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
-          status: spy(code: 400),
-          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
         })
 
         allow(client).to receive(:post).and_return(fake_response)
-      end
 
-      it "raises an error", aggregate_failures: true do
         expect { client.create({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
-          expect(error.status_code).to eq(400)
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
         end
       end
     end
@@ -139,15 +141,17 @@ RSpec.describe ZohoCRM::API::Client do
     context "when the request fails" do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
-          status: spy(code: 400),
-          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
         })
 
         allow(client).to receive(:put).and_return(fake_response)
 
         expect { client.update("42", {}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
-          expect(error.status_code).to eq(400)
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
         end
       end
     end
@@ -232,15 +236,17 @@ RSpec.describe ZohoCRM::API::Client do
     context "when the request fails" do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
-          status: spy(code: 400),
-          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
         })
 
         allow(client).to receive(:post).and_return(fake_response)
 
         expect { client.upsert({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
-          expect(error.status_code).to eq(400)
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
         end
       end
     end
@@ -273,15 +279,17 @@ RSpec.describe ZohoCRM::API::Client do
     context "when the request fails" do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
-          status: spy(code: 400),
-          parse: {"data" => [{"code" => "INVALID_DATA", "status" => "error"}]},
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
         })
 
         allow(client).to receive(:delete).and_return(fake_response)
 
         expect { client.destroy("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
-          expect(error.status_code).to eq(400)
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
         end
       end
     end

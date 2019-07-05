@@ -52,13 +52,32 @@ RSpec.describe ZohoCRM::API do
     end
 
     it "requires an error code and a status code as attributes", aggregate_failures: true do
-      expect { described_class.new }.to raise_error(ArgumentError, "missing keywords: error_code, status_code")
-      expect { described_class.new(error_code: "INVALID_DATA") }.to raise_error(ArgumentError, "missing keyword: status_code")
-      expect { described_class.new(status_code: 400) }.to raise_error(ArgumentError, "missing keyword: error_code")
+      expect { described_class.new }
+        .to raise_error(ArgumentError, "missing keywords: error_code, details, status_code, response")
+
+      expect { described_class.new(details: {}, status_code: 202, response: spy) }
+        .to raise_error(ArgumentError, "missing keyword: error_code")
+
+      expect { described_class.new(error_code: "INVALID_DATA", status_code: 202, response: spy) }
+        .to raise_error(ArgumentError, "missing keyword: details")
+
+      expect { described_class.new(error_code: "INVALID_DATA", details: {}, response: spy) }
+        .to raise_error(ArgumentError, "missing keyword: status_code")
+
+      expect { described_class.new(error_code: "INVALID_DATA", details: {}, status_code: 202) }
+        .to raise_error(ArgumentError, "missing keyword: response")
     end
 
     context "when a message is passed as argument" do
-      subject(:error) { described_class.new("Invalid data", error_code: "INVALID_DATA", status_code: 400) }
+      subject(:error) do
+        described_class.new(
+          "Invalid data",
+          error_code: "INVALID_DATA",
+          details: {},
+          status_code: 400,
+          response: spy
+        )
+      end
 
       it "generates a default error message" do
         expect(error.message).to eq("Invalid data")
@@ -66,7 +85,14 @@ RSpec.describe ZohoCRM::API do
     end
 
     context "when no message is passed as argument" do
-      subject(:error) { described_class.new(error_code: "INVALID_DATA", status_code: 400) }
+      subject(:error) do
+        described_class.new(
+          error_code: "INVALID_DATA",
+          details: {},
+          status_code: 400,
+          response: spy
+        )
+      end
 
       it "generates a default error message" do
         expect(error.message).to eq("Zoho CRM API error -- code: \"INVALID_DATA\" - HTTP status code: 400")
@@ -74,11 +100,19 @@ RSpec.describe ZohoCRM::API do
     end
 
     it "has a `error_code' readonly attribute" do
-      expect(described_class.new(error_code: "", status_code: 0)).to have_attr_reader(:error_code)
+      expect(described_class.new(error_code: "", details: {}, status_code: 0, response: spy)).to have_attr_reader(:error_code)
+    end
+
+    it "has a `details' readonly attribute" do
+      expect(described_class.new(error_code: "", details: {}, status_code: 0, response: spy)).to have_attr_reader(:details)
     end
 
     it "has a `status_code' readonly attribute" do
-      expect(described_class.new(error_code: "", status_code: 0)).to have_attr_reader(:status_code)
+      expect(described_class.new(error_code: "", details: {}, status_code: 0, response: spy)).to have_attr_reader(:status_code)
+    end
+
+    it "has a `response' readonly attribute" do
+      expect(described_class.new(error_code: "", details: {}, status_code: 0, response: spy)).to have_attr_reader(:response)
     end
   end
 end
