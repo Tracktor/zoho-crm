@@ -27,6 +27,8 @@ RSpec.describe ZohoCRM::API::Configuration do
     it { is_expected.to have_attr_accessor(:redirect_url) }
     it { is_expected.to have_attr_accessor(:logger) }
     it { is_expected.to have_attr_accessor(:sandbox) }
+    it { is_expected.to have_attr_reader(:environment) }
+    it { is_expected.to_not have_attr_writer(:environment) }
   end
 
   describe "#initialize" do
@@ -40,6 +42,20 @@ RSpec.describe ZohoCRM::API::Configuration do
         logger: an_instance_of(Logger),
         sandbox: false,
       })
+    end
+
+    it "accepts a configuration environment as argument" do
+      configuration = described_class.new(:beta)
+
+      expect(configuration.environment).to eq(:beta)
+    end
+
+    context "when no configuration environment is passed as argument" do
+      it "uses the default configuration environment" do
+        configuration = described_class.new
+
+        expect(configuration.environment).to eq(:default)
+      end
     end
   end
 

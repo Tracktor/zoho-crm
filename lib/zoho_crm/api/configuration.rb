@@ -31,17 +31,22 @@ module ZohoCRM
       # @return [Boolean]
       attr_accessor :sandbox
 
+      # @return [Symbol]
+      attr_reader :environment
+
       ACCOUNTS_URL = "https://accounts.zoho.%s"
       API_URL = "https://www.zohoapis.%s/crm/v2"
       SANDBOX_API_URL = "https://sandbox.zohoapis.%s/crm/v2"
       REGIONS = %w[com eu in].freeze
 
-      def initialize
+      # @param env [Symbol] Configuration environment
+      def initialize(env = :default)
         @region = REGIONS.first
         @scopes = []
         @timeout = 5
         @logger = Logger.new(nil)
         @sandbox = false
+        @environment = env
       end
 
       # @param value [String]
