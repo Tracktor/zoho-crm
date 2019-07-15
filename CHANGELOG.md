@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.2.6](https://github.com/Tracktor/zoho-crm/tree/v0.2.6) (2019-07-15)
+-----------------------------------------------------------------------
+
+### Features
+
+- Add the `ZohoCRM::API.configs` method to list registered configurations.
+
 [v0.2.5](https://github.com/Tracktor/zoho-crm/tree/v0.2.5) (2019-07-15)
 -----------------------------------------------------------------------
 
