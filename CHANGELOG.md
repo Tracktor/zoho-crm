@@ -1,6 +1,20 @@
 Changelog
 =========
 
+[v0.2.5](https://github.com/Tracktor/zoho-crm/tree/v0.2.5) (2019-07-15)
+-----------------------------------------------------------------------
+
+### Enhancements
+
+- Add the ability to use multiple Zoho CRM configuration:
+  - Instances of the `ZohoCRM::API::Configuration` have an `environment` attribute.
+  - The `ZohoCRM::API.config` and `ZohoCRM::API.configure` methods now accept an environment name as argument.
+  - The `ZohoCRM::API::OAuth::Client#initialize` method takes an environment name as argument.
+
+### Fixes
+
+- Update the gem specification to use the correct version of the gem in the Changelog URI.
+
 [v0.2.4](https://github.com/Tracktor/zoho-crm/tree/v0.2.4) (2019-07-05)
 -----------------------------------------------------------------------
 
