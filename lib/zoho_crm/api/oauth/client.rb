@@ -10,19 +10,24 @@ module ZohoCRM
         # @macro returns_oauth_token
         attr_reader :token
 
+        # @return [ZohoCRM::API::Configuration]
+        attr_reader :config
+
         # @param auth [Hash] Token attributes
+        # @param ev [Symbol] Configuration environment
         # @see ZohoCRM::API::OAuth::Token#initialize
-        def initialize(auth = {})
+        def initialize(auth = {}, env: :default)
           @token = ZohoCRM::API::OAuth::Token.new(auth)
+          @config = ZohoCRM::API.config(env)
         end
 
         # @return [String] URL of the Zoho authorization endpoint
         def authorize_url
           params = HTTP::URI.form_encode({
-            client_id: ZohoCRM::API.config.client_id,
-            scope: ZohoCRM::API.config.scopes.join(","),
+            client_id: config.client_id,
+            scope: config.scopes.join(","),
             response_type: "code",
-            redirect_uri: ZohoCRM::API.config.redirect_url,
+            redirect_uri: config.redirect_url,
             access_type: "offline",
             prompt: "consent",
           })
@@ -143,7 +148,7 @@ module ZohoCRM
 
         # @api private
         def oauth_url
-          "#{ZohoCRM::API.config.accounts_url}/oauth/v2"
+          "#{config.accounts_url}/oauth/v2"
         end
 
         # @api private
@@ -155,9 +160,9 @@ module ZohoCRM
 
         def default_params
           {
-            client_id: ZohoCRM::API.config.client_id,
-            client_secret: ZohoCRM::API.config.client_secret,
-            redirect_uri: ZohoCRM::API.config.redirect_url,
+            client_id: config.client_id,
+            client_secret: config.client_secret,
+            redirect_uri: config.redirect_url,
           }
         end
       end

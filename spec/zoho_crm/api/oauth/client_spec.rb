@@ -8,6 +8,7 @@ RSpec.describe ZohoCRM::API::OAuth::Client do
 
   describe "Attributes" do
     it { is_expected.to have_attr_reader(:token) }
+    it { is_expected.to have_attr_reader(:config) }
   end
 
   describe "#initialize" do
@@ -22,6 +23,22 @@ RSpec.describe ZohoCRM::API::OAuth::Client do
         client = described_class.new({"access_token" => "1234"})
 
         expect(client.token.access_token).to eq("1234")
+      end
+    end
+
+    context "when an env name is passed as an argument" do
+      it "uses the configuration associated with the env" do
+        client = described_class.new(env: :beta)
+
+        expect(client.config).to eql(ZohoCRM::API.config(:beta))
+      end
+    end
+
+    context "when no env name is passed as an argument" do
+      it "uses the default configuration" do
+        client = described_class.new
+
+        expect(client.config).to eql(ZohoCRM::API.config(:default))
       end
     end
   end
