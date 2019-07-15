@@ -2,8 +2,32 @@
 
 RSpec.describe ZohoCRM::API do
   describe ".configure" do
-    it "yields a block with the config instance as argument" do
+    it "yields a block with a config instance as argument", aggregate_failures: true do
       expect { |b| described_class.configure(&b) }.to yield_with_args(described_class.config)
+
+      described_class.configure do |config|
+        expect(config).to be_an_instance_of(ZohoCRM::API::Configuration)
+      end
+    end
+
+    context "when an env name is passed as an argument" do
+      it "yields a block with the config associated with the env", aggregate_failures: true do
+        expect { |b| described_class.configure(:beta, &b) }.to yield_with_args(described_class.config(:beta))
+
+        described_class.configure(:beta) do |config|
+          expect(config.environment).to eq(:beta)
+        end
+      end
+    end
+
+    context "when called with no argument" do
+      it "yields a block with the default config", aggregate_failures: true do
+        expect { |b| described_class.configure(&b) }.to yield_with_args(described_class.config(:default))
+
+        described_class.configure do |config|
+          expect(config.environment).to eq(:default)
+        end
+      end
     end
   end
 
@@ -14,6 +38,22 @@ RSpec.describe ZohoCRM::API do
 
     it "caches the return value" do
       expect(described_class.config).to eql(described_class.config)
+    end
+
+    it "can have multiple configurations" do
+      expect(described_class.config(:stable)).to_not eq(described_class.config(:beta))
+    end
+
+    context "when an env name is passed as an argument" do
+      it "returns the config associated with the env" do
+        expect(described_class.config(:beta)).to eql(described_class.config(:beta))
+      end
+    end
+
+    context "when called with no argument" do
+      it "returns the default config" do
+        expect(described_class.config).to eql(described_class.config(:default))
+      end
     end
   end
 end

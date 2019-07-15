@@ -84,14 +84,17 @@ module ZohoCRM
       end
     end
 
+    # @param env [Symbol] Configuration environment
     # @yield [config]
-    def self.configure
-      yield(config)
+    def self.configure(env = :default)
+      yield(config(env))
     end
 
+    # @param env [Symbol] Configuration environment
     # @return [ZohoCRM::API::Configuration]
-    def self.config
-      @config ||= Configuration.new
+    def self.config(env = :default)
+      @configs ||= Hash.new { |hash, key| hash[key] = Configuration.new(key) }
+      @configs[env.to_s.to_sym]
     end
   end
 end
