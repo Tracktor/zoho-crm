@@ -56,6 +56,21 @@ RSpec.describe ZohoCRM::API do
       end
     end
   end
+
+  describe ".configs" do
+    before do
+      described_class.configure(:legacy) {}
+      described_class.configure(:beta) {}
+    end
+
+    it "returns a Hash of registered Zoho CRM configurations", aggregate_failures: true do
+      expect(described_class.configs).to be_an_instance_of(Hash)
+      expect(described_class.configs).to include({
+        legacy: an_instance_of(ZohoCRM::API::Configuration),
+        beta: an_instance_of(ZohoCRM::API::Configuration),
+      })
+    end
+  end
 end
 
 RSpec.describe ZohoCRM::API::Configuration do
