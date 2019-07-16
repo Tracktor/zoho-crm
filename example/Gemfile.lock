@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    zoho-crm (0.2.6)
+    zoho-crm (0.2.7)
       http (~> 4.1.1)
 
 GEM

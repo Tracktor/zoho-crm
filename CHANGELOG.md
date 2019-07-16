@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.2.7](https://github.com/Tracktor/zoho-crm/tree/v0.2.7) (2019-07-16)
+-----------------------------------------------------------------------
+
+### Features
+
+- Add the `ZohoCRM::API::Configuration#crm_url` method to return the URL of the Zoho CRM.
+
 [v0.2.6](https://github.com/Tracktor/zoho-crm/tree/v0.2.6) (2019-07-15)
 -----------------------------------------------------------------------
 
