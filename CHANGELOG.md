@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.2.8](https://github.com/Tracktor/zoho-crm/tree/v0.2.8) (2019-07-16)
+-----------------------------------------------------------------------
+
+### Fixes
+
+- Fix the Zoho CRM URL returned by the `ZohoCRM::API::Configuration#crm_url` method: The URL without a trailing slash (`/`) redirects to an error page on Zoho.
+
 [v0.2.7](https://github.com/Tracktor/zoho-crm/tree/v0.2.7) (2019-07-16)
 -----------------------------------------------------------------------
 
