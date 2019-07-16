@@ -68,7 +68,7 @@ module ZohoCRM
       # @param uri [String] API endpoint
       # @return [String] API request URL
       def build_url(uri)
-        "#{ZohoCRM::API.config.base_url}/#{uri}"
+        "#{oauth_client.config.base_url}/#{uri}"
       end
 
       # @api private

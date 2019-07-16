@@ -98,12 +98,13 @@ RSpec.describe ZohoCRM::API::Connection do
   end
 
   describe "#build_url" do
-    before do
-      allow(ZohoCRM::API.config).to receive(:base_url).and_return("https://www.zohoapis.com/crm/v2")
+    let(:oauth_client) do
+      zoho_config = instance_spy(ZohoCRM::API::Configuration, base_url: "https://www.zohoapis.com/crm/v2")
+      instance_spy(ZohoCRM::API::OAuth::Client, config: zoho_config)
     end
 
     it "returns the URL for the given endpoint" do
-      connection = described_class.new(spy)
+      connection = described_class.new(oauth_client)
 
       expect(connection.build_url("Contacts")).to eq("https://www.zohoapis.com/crm/v2/Contacts")
     end
