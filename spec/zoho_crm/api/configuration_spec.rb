@@ -225,7 +225,7 @@ RSpec.describe ZohoCRM::API::Configuration do
         configuration = described_class.new
         configuration.sandbox = false
 
-        expect(configuration.crm_url).to eq("https://crm.zoho.com/crm")
+        expect(configuration.crm_url).to eq("https://crm.zoho.com/crm/")
       end
 
       it "returns the Zoho CRM URL with the correct region" do
@@ -233,7 +233,7 @@ RSpec.describe ZohoCRM::API::Configuration do
         configuration.sandbox = false
         configuration.region = "eu"
 
-        expect(configuration.crm_url).to eq("https://crm.zoho.eu/crm")
+        expect(configuration.crm_url).to eq("https://crm.zoho.eu/crm/")
       end
     end
 
@@ -242,7 +242,7 @@ RSpec.describe ZohoCRM::API::Configuration do
         configuration = described_class.new
         configuration.sandbox = true
 
-        expect(configuration.crm_url).to eq("https://crmsandbox.zoho.com/crm")
+        expect(configuration.crm_url).to eq("https://crmsandbox.zoho.com/crm/")
       end
 
       it "returns the Zoho CRM URL with the correct region" do
@@ -250,7 +250,7 @@ RSpec.describe ZohoCRM::API::Configuration do
         configuration.sandbox = true
         configuration.region = "eu"
 
-        expect(configuration.crm_url).to eq("https://crmsandbox.zoho.eu/crm")
+        expect(configuration.crm_url).to eq("https://crmsandbox.zoho.eu/crm/")
       end
     end
   end

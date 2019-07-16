@@ -35,7 +35,7 @@ module ZohoCRM
       attr_reader :environment
 
       ACCOUNTS_URL = "https://accounts.zoho.%s"
-      CRM_URL = "https://%s.zoho.%s/crm"
+      CRM_URL = "https://%s.zoho.%s/crm/"
       API_URL = "https://www.zohoapis.%s/crm/v2"
       SANDBOX_API_URL = "https://sandbox.zohoapis.%s/crm/v2"
       REGIONS = %w[com eu in].freeze
