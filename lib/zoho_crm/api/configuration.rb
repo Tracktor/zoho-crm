@@ -35,6 +35,7 @@ module ZohoCRM
       attr_reader :environment
 
       ACCOUNTS_URL = "https://accounts.zoho.%s"
+      CRM_URL = "https://%s.zoho.%s/crm"
       API_URL = "https://www.zohoapis.%s/crm/v2"
       SANDBOX_API_URL = "https://sandbox.zohoapis.%s/crm/v2"
       REGIONS = %w[com eu in].freeze
@@ -76,6 +77,11 @@ module ZohoCRM
       # @return [String]
       def accounts_url
         format(ACCOUNTS_URL, region)
+      end
+
+      # @return [String] the URL of the Zoho CRM
+      def crm_url
+        format(CRM_URL, sandbox ? "crmsandbox" : "crm", region)
       end
 
       # @return [String] URL of the Zoho Developer Console

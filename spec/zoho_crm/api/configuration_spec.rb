@@ -219,6 +219,42 @@ RSpec.describe ZohoCRM::API::Configuration do
     end
   end
 
+  describe "#crm_url" do
+    context "when the sandbox config is set to \"false\"" do
+      it "returns the Zoho CRM URL" do
+        configuration = described_class.new
+        configuration.sandbox = false
+
+        expect(configuration.crm_url).to eq("https://crm.zoho.com/crm")
+      end
+
+      it "returns the Zoho CRM URL with the correct region" do
+        configuration = described_class.new
+        configuration.sandbox = false
+        configuration.region = "eu"
+
+        expect(configuration.crm_url).to eq("https://crm.zoho.eu/crm")
+      end
+    end
+
+    context "when the sandbox config is set to \"true\"" do
+      it "returns the Zoho CRM URL" do
+        configuration = described_class.new
+        configuration.sandbox = true
+
+        expect(configuration.crm_url).to eq("https://crmsandbox.zoho.com/crm")
+      end
+
+      it "returns the Zoho CRM URL with the correct region" do
+        configuration = described_class.new
+        configuration.sandbox = true
+        configuration.region = "eu"
+
+        expect(configuration.crm_url).to eq("https://crmsandbox.zoho.eu/crm")
+      end
+    end
+  end
+
   describe "#developer_console_url" do
     it "returns the Zoho developer console URL" do
       configuration = described_class.new
