@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.2.9](https://github.com/Tracktor/zoho-crm/tree/v0.2.9) (2019-07-16)
+-----------------------------------------------------------------------
+
+### Fixes
+
+- Use the Zoho CRM configuration of the OAuth client instead of the default one when using the API client.
+
 [v0.2.8](https://github.com/Tracktor/zoho-crm/tree/v0.2.8) (2019-07-16)
 -----------------------------------------------------------------------
 
