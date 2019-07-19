@@ -48,16 +48,56 @@ RSpec.describe ZohoCRM::API::OAuth::Client do
 
     # Stub the config
     before do
-      allow(ZohoCRM::API.config).to receive(:accounts_url).and_return("https://accounts.zoho.eu")
       allow(ZohoCRM::API.config).to receive(:client_id).and_return("12345")
       allow(ZohoCRM::API.config).to receive(:scopes).and_return(%w[ZohoCRM.users.all ZohoCRM.modules.all])
       allow(ZohoCRM::API.config).to receive(:redirect_url).and_return("http://example.com/zoho/auth")
     end
 
-    it "returns the URL of the Zoho authorization endpoint" do
-      encoded_url = "https://accounts.zoho.eu/oauth/v2/auth?client_id=12345&scope=ZohoCRM.users.all%2CZohoCRM.modules.all&response_type=code&redirect_uri=http%3A%2F%2Fexample.com%2Fzoho%2Fauth&access_type=offline&prompt=consent"
+    context "when the region is com" do
+      before do
+        allow(ZohoCRM::API.config).to receive(:region).and_return("com")
+        allow(ZohoCRM::API.config).to receive(:accounts_url).and_return("https://accounts.zoho.com")
+      end
 
-      expect(client.authorize_url).to eq(encoded_url)
+      it "returns the URL of the Zoho authorization endpoint" do
+        encoded_url = "https://accounts.zoho.com/oauth/v2/auth?client_id=12345&scope=ZohoCRM.users.all%2CZohoCRM.modules.all&response_type=code&redirect_uri=http%3A%2F%2Fexample.com%2Fzoho%2Fauth&access_type=offline&prompt=consent"
+
+        expect(client.authorize_url).to eq(encoded_url)
+      end
+    end
+
+    context "when the region is eu" do
+      before do
+        allow(ZohoCRM::API.config).to receive(:region).and_return("eu")
+        allow(ZohoCRM::API.config).to receive(:accounts_url).and_return("https://accounts.zoho.eu")
+      end
+
+      it "returns the URL of the Zoho authorization endpoint in the .com region" do
+        encoded_url = "https://accounts.zoho.com/oauth/v2/auth?client_id=12345&scope=ZohoCRM.users.all%2CZohoCRM.modules.all&response_type=code&redirect_uri=http%3A%2F%2Fexample.com%2Fzoho%2Fauth&access_type=offline&prompt=consent"
+
+        expect(client.authorize_url).to eq(encoded_url)
+      end
+    end
+
+    context "when the region is in" do
+      before do
+        allow(ZohoCRM::API.config).to receive(:region).and_return("in")
+        allow(ZohoCRM::API.config).to receive(:accounts_url).and_return("https://accounts.zoho.in")
+      end
+
+      it "returns the URL of the Zoho authorization endpoint in the .com region" do
+        encoded_url = "https://accounts.zoho.com/oauth/v2/auth?client_id=12345&scope=ZohoCRM.users.all%2CZohoCRM.modules.all&response_type=code&redirect_uri=http%3A%2F%2Fexample.com%2Fzoho%2Fauth&access_type=offline&prompt=consent"
+
+        expect(client.authorize_url).to eq(encoded_url)
+      end
+    end
+
+    context "when the region is eu" do
+      it "returns the URL of the Zoho authorization endpoint in the .com region" do
+        encoded_url = "https://accounts.zoho.com/oauth/v2/auth?client_id=12345&scope=ZohoCRM.users.all%2CZohoCRM.modules.all&response_type=code&redirect_uri=http%3A%2F%2Fexample.com%2Fzoho%2Fauth&access_type=offline&prompt=consent"
+
+        expect(client.authorize_url).to eq(encoded_url)
+      end
     end
   end
 

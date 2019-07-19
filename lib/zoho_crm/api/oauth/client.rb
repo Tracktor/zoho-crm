@@ -32,7 +32,9 @@ module ZohoCRM
             prompt: "consent",
           })
 
-          "#{oauth_url}/auth?#{params}"
+          accounts_url = format(ZohoCRM::API::Configuration::ACCOUNTS_URL, region: "com")
+
+          "#{accounts_url}/oauth/v2/auth?#{params}"
         end
 
         # Get an access_token/refresh_token pair
