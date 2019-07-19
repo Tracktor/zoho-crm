@@ -1,6 +1,23 @@
 Changelog
 =========
 
+[v0.2.10](https://github.com/Tracktor/zoho-crm/tree/v0.2.10) (2019-07-19)
+-------------------------------------------------------------------------
+
+### Fixes
+
+- Always use the .com region for the OAuth authorization URL
+
+  All OAuth authorization request must be sent to https://www.accounts.zoho.com, even if the associated account is linked to the EU or IN domains.
+
+  To quote the Zoho CRM API documentation:
+
+  > You must make the authorization request from
+  > https://www.accounts.zoho.com for EU and IN domains. After the request
+  > is successful, the system automatically redirects you to your domain.
+
+  Source: https://www.zoho.com/crm/developer/docs/api/auth-request.html
+
 [v0.2.9](https://github.com/Tracktor/zoho-crm/tree/v0.2.9) (2019-07-16)
 -----------------------------------------------------------------------
 
