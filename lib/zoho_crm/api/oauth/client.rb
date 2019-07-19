@@ -14,7 +14,7 @@ module ZohoCRM
         attr_reader :config
 
         # @param auth [Hash] Token attributes
-        # @param ev [Symbol] Configuration environment
+        # @param env [Symbol] Configuration environment
         # @see ZohoCRM::API::OAuth::Token#initialize
         def initialize(auth = {}, env: :default)
           @token = ZohoCRM::API::OAuth::Token.new(auth)
