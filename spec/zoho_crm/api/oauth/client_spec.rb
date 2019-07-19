@@ -424,18 +424,6 @@ RSpec.describe ZohoCRM::API::OAuth::Client do
     end
   end
 
-  describe "#oauth_url" do
-    subject(:client) { described_class.new }
-
-    before do
-      allow(ZohoCRM::API.config).to receive(:accounts_url).and_return("https://accounts.zoho.eu")
-    end
-
-    it "returns the Zoho OAuth base URL" do
-      expect(client.oauth_url).to eq("https://accounts.zoho.eu/oauth/v2")
-    end
-  end
-
   describe "#token_url" do
     subject(:client) { described_class.new }
 

@@ -149,13 +149,8 @@ module ZohoCRM
         end
 
         # @api private
-        def oauth_url
-          "#{config.accounts_url}/oauth/v2"
-        end
-
-        # @api private
         def token_url
-          "#{oauth_url}/token"
+          "#{config.accounts_url}/oauth/v2/token"
         end
 
         private
