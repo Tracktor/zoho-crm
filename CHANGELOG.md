@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[v0.2.11](https://github.com/Tracktor/zoho-crm/tree/v0.2.11) (2019-08-12)
+-------------------------------------------------------------------------
+
+### Enhancements
+
+- Add to ability to specify which workflows to trigger when creating, updating or upserting records.
+
+### Fixes
+
+- Don't "flatten" the body of requests to avoid breaking nested structures.
+
 [v0.2.10](https://github.com/Tracktor/zoho-crm/tree/v0.2.10) (2019-07-19)
 -------------------------------------------------------------------------
 
