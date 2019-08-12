@@ -161,7 +161,7 @@ module ZohoCRM
       private
 
       def build_body(body)
-        {data: [body].flatten}
+        {data: [body].flatten(1)}
       end
     end
   end
