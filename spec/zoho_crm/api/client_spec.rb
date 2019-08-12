@@ -66,7 +66,7 @@ RSpec.describe ZohoCRM::API::Client do
 
       client.create({}, module_name: "Contacts")
 
-      expect(client).to have_received(:post).with("Contacts", body: {data: [{}]})
+      expect(client).to have_received(:post).with("Contacts", body: {data: [{}], trigger: []})
     end
 
     it "can't create multiple records at the same time", aggregate_failures: true do
@@ -76,6 +76,22 @@ RSpec.describe ZohoCRM::API::Client do
         .to raise_error(ZohoCRM::API::Error, "Can't create more than one record at a time")
 
       expect(client).to_not have_received(:post)
+    end
+
+    it "accepts a list of workflows to trigger" do
+      allow(client).to receive(:post).and_return(spy)
+
+      client.create({}, module_name: "Contacts", trigger: %w[approval blueprint])
+
+      expect(client).to have_received(:post).with("Contacts", body: {data: [{}], trigger: %w[approval blueprint]})
+    end
+
+    it "doesn't trigger any workflow by default" do
+      allow(client).to receive(:post).and_return(spy)
+
+      client.create({}, module_name: "Contacts")
+
+      expect(client).to have_received(:post).with("Contacts", body: {data: [{}], trigger: []})
     end
 
     context "when the request succeeds" do
@@ -125,7 +141,23 @@ RSpec.describe ZohoCRM::API::Client do
 
       client.update(42, {}, module_name: "Contacts")
 
-      expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}]})
+      expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}], trigger: []})
+    end
+
+    it "accepts a list of workflows to trigger" do
+      allow(client).to receive(:put).and_return(spy)
+
+      client.update(42, {}, module_name: "Contacts", trigger: %w[blueprint])
+
+      expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}], trigger: %w[blueprint]})
+    end
+
+    it "doesn't trigger any workflow by default" do
+      allow(client).to receive(:put).and_return(spy)
+
+      client.update(42, {}, module_name: "Contacts")
+
+      expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}], trigger: []})
     end
 
     context "when the request succeeds" do
@@ -170,7 +202,7 @@ RSpec.describe ZohoCRM::API::Client do
 
       client.upsert([{}], module_name: "Contacts")
 
-      expect(client).to have_received(:post).with("Contacts/upsert", body: {data: [{}], duplicate_check_fields: []})
+      expect(client).to have_received(:post).with("Contacts/upsert", body: {data: [{}], duplicate_check_fields: [], trigger: []})
     end
 
     it "can't upsert multiple records at the same time" do
@@ -190,6 +222,31 @@ RSpec.describe ZohoCRM::API::Client do
       expect(client).to have_received(:post).with("Contacts/upsert", body: {
         data: [{}],
         duplicate_check_fields: %w[email last_name],
+        trigger: [],
+      })
+    end
+
+    it "accepts a list of workflows to trigger" do
+      allow(client).to receive(:post).and_return(spy)
+
+      client.upsert([{}], module_name: "Contacts", trigger: %w[blueprint])
+
+      expect(client).to have_received(:post).with("Contacts/upsert", body: {
+        data: [{}],
+        duplicate_check_fields: [],
+        trigger: %w[blueprint],
+      })
+    end
+
+    it "doesn't trigger any workflow by default" do
+      allow(client).to receive(:post).and_return(spy)
+
+      client.upsert([{}], module_name: "Contacts", trigger: [])
+
+      expect(client).to have_received(:post).with("Contacts/upsert", body: {
+        data: [{}],
+        duplicate_check_fields: [],
+        trigger: [],
       })
     end
 

@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# @!macro [new] api_triggers
+#
+#   @note The +trigger+ parameter can have any of the following values: +"workflow"+, +"approval"+, or +"blueprint"+.<br>
+#     Its default value is +[]+, which means that *no workflow will be executed*.
+#
+#   @param trigger [Array<String>] List of workflows to trigger.
+
 module ZohoCRM
   module API
     class Client < Connection
@@ -37,17 +44,21 @@ module ZohoCRM
       #
       # @param attributes [Hash] Record attributes
       # @param module_name [String] the name of the Zoho module
+      # @macro api_triggers
       #
       # @raise [ZohoCRM::API::Error] when trying to create more than one record
       # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
       #
       # @return [String] the ID of the new record
-      def create(attributes, module_name:)
+      def create(attributes, module_name:, trigger: [])
         if attributes.is_a?(Array) && attributes.size > 1
           raise ZohoCRM::API::Error.new("Can't create more than one record at a time")
         end
 
-        response = post(module_name, body: build_body(attributes))
+        body = build_body(attributes)
+        body[:trigger] = Array(trigger).uniq
+
+        response = post(module_name, body: body)
         data = response.parse.fetch("data") { [] }
         data = data[0] || {}
 
@@ -70,12 +81,16 @@ module ZohoCRM
       # @param record_id [String] the ID of the record
       # @param attributes [Hash] the new record attributes
       # @param module_name [String] the name of the Zoho module
+      # @macro api_triggers
       #
       # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
       #
       # @return [Boolean]
-      def update(record_id, attributes, module_name:)
-        response = put("#{module_name}/#{record_id}", body: build_body(attributes))
+      def update(record_id, attributes, module_name:, trigger: [])
+        body = build_body(attributes)
+        body[:trigger] = Array(trigger).uniq
+
+        response = put("#{module_name}/#{record_id}", body: body)
 
         data = response.parse.fetch("data") { [] }
         data = data[0] || {}
@@ -99,6 +114,7 @@ module ZohoCRM
       # @param attributes [Hash] the record attributes
       # @param module_name [String] the name of the Zoho module
       # @param duplicate_check_fields [Array] list of fields to check against existing records
+      # @macro api_triggers
       #
       # @raise [ZohoCRM::API::Error] when trying to upsert more than one record
       # @raise [ZohoCRM::API::APIRequestError] if the response body contains an error
@@ -106,13 +122,14 @@ module ZohoCRM
       # @return [Hash{String => Boolean,String}] a Hash with two keys:
       #   - <b>+new_record+</b> (+Boolean+) — +true+ if the record was created, +false+ if it was updated
       #   - <b>+id+</b> (+String+) — the ID of the record
-      def upsert(attributes, module_name:, duplicate_check_fields: [])
+      def upsert(attributes, module_name:, duplicate_check_fields: [], trigger: [])
         if attributes.is_a?(Array) && attributes.size > 1
           raise ZohoCRM::API::Error.new("Can't upsert more than one record at a time")
         end
 
         body = build_body(attributes)
         body[:duplicate_check_fields] = Array(duplicate_check_fields)
+        body[:trigger] = Array(trigger)
 
         response = post("#{module_name}/upsert", body: body)
         data = response.parse.fetch("data") { [] }
