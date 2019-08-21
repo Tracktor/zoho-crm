@@ -160,13 +160,13 @@ RSpec.describe ZohoCRM::API::OAuth::Client do
         end
 
         it "updates the token attributes" do
-          refresh_time     = Time.new(2008, 6, 21, 12, 30, 0, "+02:00")
+          refresh_time = Time.new(2008, 6, 21, 12, 30, 0, "+02:00")
           refresh_time_utc = Time.new(2008, 6, 21, 10, 30, 0, "+00:00")
 
           allow(Time).to receive(:now).and_return(refresh_time)
 
           expect { client.create(grant_token: "123456") }
-            .to  change(client.token, :access_token).to(token_attributes["access_token"])
+            .to change(client.token, :access_token).to(token_attributes["access_token"])
             .and change(client.token, :refresh_token).to(token_attributes["refresh_token"])
             .and change(client.token, :expires_in_sec).to(token_attributes["expires_in_sec"])
             .and change(client.token, :expires_in).to(token_attributes["expires_in"])
@@ -259,13 +259,13 @@ RSpec.describe ZohoCRM::API::OAuth::Client do
         end
 
         it "updates the token attributes" do
-          refresh_time     = Time.new(2008, 6, 21, 12, 30, 0, "+02:00")
+          refresh_time = Time.new(2008, 6, 21, 12, 30, 0, "+02:00")
           refresh_time_utc = Time.new(2008, 6, 21, 10, 30, 0, "+00:00")
 
           allow(Time).to receive(:now).and_return(refresh_time)
 
           expect { client.refresh }
-            .to  change(client.token, :access_token).to(token_attributes["access_token"])
+            .to change(client.token, :access_token).to(token_attributes["access_token"])
             .and change(client.token, :expires_in_sec).to(token_attributes["expires_in_sec"])
             .and change(client.token, :expires_in).to(token_attributes["expires_in"])
             .and change(client.token, :token_type).to(token_attributes["token_type"])
@@ -363,7 +363,7 @@ RSpec.describe ZohoCRM::API::OAuth::Client do
 
         it "revokes the token" do
           expect { client.revoke }
-            .to  change(client.token, :access_token).to(nil)
+            .to change(client.token, :access_token).to(nil)
             .and change(client.token, :expires_in_sec).to(nil)
             .and change(client.token, :expires_in).to(nil)
             .and change(client.token, :token_type).to(nil)

@@ -5,12 +5,12 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "zoho_crm/version"
 
 Gem::Specification.new do |spec|
-  spec.name     = "zoho-crm"
-  spec.version  = ZohoCRM::VERSION
-  spec.authors  = ["Robert Audi"]
-  spec.email    = ["robert.audii@gmail.com"]
+  spec.name = "zoho-crm"
+  spec.version = ZohoCRM::VERSION
+  spec.authors = ["Robert Audi"]
+  spec.email = ["robert.audii@gmail.com"]
 
-  spec.summary  = "A gem to make working with Zoho CRM less painful"
+  spec.summary = "A gem to make working with Zoho CRM less painful"
   spec.homepage = "https://github.com/Tracktor/zoho-crm"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

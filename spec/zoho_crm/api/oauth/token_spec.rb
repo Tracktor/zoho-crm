@@ -352,7 +352,7 @@ RSpec.describe ZohoCRM::API::OAuth::Token do
       it "sets the `refresh_time' attribute to the given value in UTC" do
         skip "timezones"
 
-        refresh_time     = Time.new(2008, 6, 21, 10, 30, 0).localtime("+02:00")
+        refresh_time = Time.new(2008, 6, 21, 10, 30, 0).localtime("+02:00")
         refresh_time_utc = Time.utc(2008, 6, 21, 10, 30, 0)
         token.refresh_time = refresh_time
 
@@ -377,7 +377,7 @@ RSpec.describe ZohoCRM::API::OAuth::Token do
         skip "timezones..."
 
         refresh_datetime = DateTime.new(2001, 2, 3, 4, 5, 6, "+2")
-        refresh_time     =     Time.utc(2001, 2, 3, 4, 5, 6)
+        refresh_time = Time.utc(2001, 2, 3, 4, 5, 6)
         token.refresh_time = refresh_datetime
 
         expect(token.refresh_time).to eq(refresh_time)
