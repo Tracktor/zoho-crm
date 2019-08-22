@@ -236,7 +236,7 @@ RSpec.describe ZohoCRM::FieldSet do
   describe "#member?" do
     subject(:field_set) { described_class.new }
 
-    it "is an alias for #size" do
+    it "is an alias for #include?" do
       expect(field_set.method(:member?)).to eql(field_set.method(:include?))
     end
   end
