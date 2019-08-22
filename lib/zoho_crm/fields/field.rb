@@ -19,8 +19,7 @@ module ZohoCRM
       attr_reader :field_method
       attr_reader :options
 
-      # Caveat: options are parsed as keyword arguments,
-      #         so all the keys must be symbols (not string)
+      # *Caveat:* Options are parsed as keyword arguments, so all the keys must be symbols (not strings)
       def self.build(field_name, field_method = nil, **options, &block)
         if options.key?(:values)
           ZohoCRM::Fields::Enum.build(field_name, field_method, **options, &block)
@@ -52,6 +51,7 @@ module ZohoCRM
         @label = value && !string_value.empty? ? string_value : api_name.tr("_", " ")
       end
 
+      # @raise [ZohoCRM::Fields::Field::UnsupportedMethodTypeError]
       def value_for(object)
         case field_method
         when Symbol, String
@@ -68,6 +68,7 @@ module ZohoCRM
         end
       end
 
+      # @return [false]
       def enum?
         false
       end
@@ -90,6 +91,7 @@ module ZohoCRM
       end
       alias == eql?
 
+      # @return [String]
       def inspect
         format("#<%s name: %p api_name: %p field_method: %s options: %p>",
           self.class.name, name, api_name, inspect_field_method, options)

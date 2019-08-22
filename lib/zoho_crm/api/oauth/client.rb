@@ -136,7 +136,7 @@ module ZohoCRM
           token
         end
 
-        # The OAuth client is authorized if the refresh token is neither `nil` nor empty
+        # The OAuth client is authorized if the refresh token is neither +nil+ nor empty
         #
         # @return [Boolean] Whether or not the OAuth client is authorized
         def authorized?

@@ -27,12 +27,14 @@ module ZohoCRM
       @hash = {}
     end
 
+    # @return [nil, object]
     def [](field)
       key = key_for(field)
 
       key.nil? ? nil : @hash[key]
     end
 
+    # @raise [ZohoCRM::FieldSet::FieldNotFoundError]
     def fetch(field, default = nil)
       if block_given? && !default.nil?
         warn("warning: block supersedes default value argument")
@@ -55,6 +57,9 @@ module ZohoCRM
       end
     end
 
+    # @raise [TypeError] if +field+ is not a {ZohoCRM::Fields::Field}
+    #
+    # @return [self]
     def add(field)
       raise TypeError unless field.is_a?(ZohoCRM::Fields::Field)
 
@@ -73,6 +78,7 @@ module ZohoCRM
     end
     alias member? include?
 
+    # @return [self]
     def each(&block)
       unless block_given?
         return enum_for(__method__) { size }
@@ -89,18 +95,20 @@ module ZohoCRM
     end
     alias length size
 
-    # Returns true if the set contains no elements.
+    # Returns +true+ if the set contains no elements.
     def empty?
       @hash.empty?
     end
 
-    # Removes all elements and returns self.
+    # Removes all elements and returns +self+.
+    #
+    # @return [self]
     def clear
       @hash.clear
       self
     end
 
-    # Converts the set to an array.  The order of elements is uncertain.
+    # Converts the set to an +Array+.  The order of elements is uncertain.
     def to_a
       @hash.values
     end
@@ -109,7 +117,9 @@ module ZohoCRM
       @hash
     end
 
-    # Deletes the given object from the set and returns self.
+    # Deletes the given object from the set and returns +self+.
+    #
+    # @return [self]
     def delete(other)
       key = key_for(other)
 
@@ -119,8 +129,10 @@ module ZohoCRM
     end
 
     # Deletes every element of the set for which block evaluates to
-    # true, and returns self. Returns an enumerator if no block is
+    # +true+, and returns +self+. Returns an +Enumerator+ if no block is
     # given.
+    #
+    # @return [self]
     def delete_if
       unless block_given?
         return enum_for(__method__) { size }
@@ -132,8 +144,10 @@ module ZohoCRM
     end
 
     # Deletes every element of the set for which block evaluates to
-    # false, and returns self. Returns an enumerator if no block is
+    # +false+, and returns +self+. Returns an +Enumerator+ if no block is
     # given.
+    #
+    # @return [self]
     def keep_if
       unless block_given?
         return enum_for(__method__) { size }
@@ -154,8 +168,8 @@ module ZohoCRM
       other.equal?(self) || other.instance_variable_get(:@hash).eql?(@hash)
     end
 
-    # Returns true if two sets are equal. The equality of each couple
-    # of elements is defined according to Object#==.
+    # Returns +true+ if two sets are equal. The equality of each couple
+    # of elements is defined according to +Object#==+.
     def ==(other)
       if other.equal?(self)
         true
@@ -183,6 +197,7 @@ module ZohoCRM
       super
     end
 
+    # @return [String]
     def inspect
       fields_inspect_string = @hash.each_value.map { |f| "#{f.name}: #{f.inspect}" }.join(" ")
       format("#<%s (%s)>", self.class.name, fields_inspect_string)

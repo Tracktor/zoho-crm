@@ -24,8 +24,7 @@ module ZohoCRM
 
       attr_reader :elements
 
-      # Caveat: options are parsed as keyword arguments,
-      #         so all the keys must be symbols (not string)
+      # *Caveat:* Options are parsed as keyword arguments, so all the keys must be symbols (not strings)
       def self.build(field_name, field_method = nil, **options, &block)
         options = ZohoCRM::Utils.normalize_options(options)
 
@@ -44,6 +43,7 @@ module ZohoCRM
         @elements = normalize_elements(elements)
       end
 
+      # @raise [ZohoCRM::Fields::Enum::FieldNotFoundError] if the value is not a valid element.
       def value_for(object)
         value = super(object)
 
@@ -54,6 +54,7 @@ module ZohoCRM
         element(value)
       end
 
+      # @return [true]
       def enum?
         true
       end
