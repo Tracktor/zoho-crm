@@ -4,9 +4,9 @@ Changelog
 [v0.2.11](https://github.com/Tracktor/zoho-crm/tree/v0.2.11) (2019-08-12)
 -------------------------------------------------------------------------
 
-### Enhancements
+### Features
 
-- Add to ability to specify which workflows to trigger when creating, updating or upserting records.
+- Add the ability to specify which workflows to trigger when creating, updating or upserting records.
 
 ### Fixes
 
