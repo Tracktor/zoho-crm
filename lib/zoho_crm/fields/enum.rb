@@ -58,11 +58,27 @@ module ZohoCRM
         elements.fetch(value.to_s, value)
       end
 
+      # Returns a string containing a human-readable representation of the enum's elements.
+      #
+      # @example
+      #   enum = ZohoCRM::Fields::Enum.new(:status, %i[enabled disabled])
+      #   elements = enum.human_readable_elements # => "[\"enabled\" (:enabled), \"disabled\" (:disabled)]"
+      #   puts elements
+      #   # ["enabled" (:enabled), "disabled" (:disabled)]
+      #
+      # @return [String]
       def human_readable_elements
         human_elements = elements.map { |(k, v)| "#{k.inspect} (#{v.inspect})" }
         "[#{human_elements.join(", ")}]"
       end
 
+      # Returns a string containing a human-readable representation of the enum.
+      #
+      # @example
+      #   ZohoCRM::Fields::Enum.new(:status, %i[enabled disabled]).inspect
+      #   # => #<ZohoCRM::Fields::Enum name: "status" api_name: "Status" field_method: "status" elements: ["enabled" (:enabled), "disabled" (:disabled)] options: {}>
+      #
+      # @return [String]
       def inspect
         format("#<%s name: %p api_name: %p field_method: %p elements: %s options: %p>",
           self.class.name, name, api_name, field_method, human_readable_elements, options)

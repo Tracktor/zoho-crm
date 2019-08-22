@@ -27,13 +27,25 @@ module ZohoCRM
       @hash = {}
     end
 
-    # @return [nil, object]
+    # @param field [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
+    #
+    # @return [nil, ZohoCRM::Fields::Field]
     def [](field)
       key = key_for(field)
 
       key.nil? ? nil : @hash[key]
     end
 
+    # @param field [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
+    # @param default [ZohoCRM::Fields::Field] default value if no field is found
+    #
+    # @yieldparam field [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
+    # @yieldreturn [ZohoCRM::Fields::Field]
+    #
+    # @note If a block *and* a default value are passed then the block supersedes the default value argument
+    #
+    # @return [ZohoCRM::Fields::Field]
+    #
     # @raise [ZohoCRM::FieldSet::FieldNotFoundError]
     def fetch(field, default = nil)
       if block_given? && !default.nil?
@@ -100,6 +112,7 @@ module ZohoCRM
       self
     end
 
+    # @param field [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
     def include?(other)
       key = key_for(other)
 
@@ -107,7 +120,7 @@ module ZohoCRM
     end
     alias member? include?
 
-    # @return [self]
+    # @return [self, Enumerator]
     def each(&block)
       unless block_given?
         return enum_for(__method__) { size }
@@ -119,6 +132,8 @@ module ZohoCRM
     end
 
     # Returns the number of elements.
+    #
+    # @return [Integer]
     def size
       @hash.size
     end
@@ -129,7 +144,7 @@ module ZohoCRM
       @hash.empty?
     end
 
-    # Removes all elements and returns +self+.
+    # Removes all elements.
     #
     # @return [self]
     def clear
@@ -137,16 +152,23 @@ module ZohoCRM
       self
     end
 
-    # Converts the set to an +Array+.  The order of elements is uncertain.
+    # Converts the set to an +Array+.
+    #
+    # @note The order of elements is uncertain.
+    #
+    # @return [Array]
     def to_a
       @hash.values
     end
 
+    # @return [Hash]
     def to_h
       @hash
     end
 
-    # Deletes the given object from the set and returns +self+.
+    # Deletes the given object from the set.
+    #
+    # @yieldparam field [Symbol, String, ZohoCRM::Fields::Field]
     #
     # @return [self]
     def delete(other)
@@ -157,11 +179,13 @@ module ZohoCRM
       self
     end
 
-    # Deletes every element of the set for which block evaluates to
-    # +true+, and returns +self+. Returns an +Enumerator+ if no block is
-    # given.
+    # Deletes every element of the set for which block evaluates to +true+
     #
-    # @return [self]
+    # Returns an +Enumerator+ if no block is given, +self+ otherwise.
+    #
+    # @yieldparam field [Symbol, String, ZohoCRM::Fields::Field]
+    #
+    # @return [self, Enumerator]
     def delete_if
       unless block_given?
         return enum_for(__method__) { size }
@@ -172,11 +196,13 @@ module ZohoCRM
       self
     end
 
-    # Deletes every element of the set for which block evaluates to
-    # +false+, and returns +self+. Returns an +Enumerator+ if no block is
-    # given.
+    # Deletes every element of the set for which block evaluates to +false+.
     #
-    # @return [self]
+    # Returns an +Enumerator+ if no block is given, +self+ otherwise.
+    #
+    # @yieldparam field [Symbol, String, ZohoCRM::Fields::Field]
+    #
+    # @return [self, Enumerator]
     def keep_if
       unless block_given?
         return enum_for(__method__) { size }
@@ -187,18 +213,26 @@ module ZohoCRM
       self
     end
 
+    # @return [Integer]
     def hash
       @hash.hash
     end
 
+    # Returns +false+ if +other+ is not a {ZohoCRM::FieldSet}
+    #
+    # Returns +true+ if +other+ and +self+ are the same object or have the same contents.
     def eql?(other)
       return false unless other.is_a?(FieldSet)
 
       other.equal?(self) || other.instance_variable_get(:@hash).eql?(@hash)
     end
 
-    # Returns +true+ if two sets are equal. The equality of each couple
-    # of elements is defined according to +Object#==+.
+    # Returns +false+ if +other+ is not a {ZohoCRM::FieldSet}.
+    #
+    # Returns +true+ if two sets are equal. The equality of each couple of elements is
+    # defined according to {Object#==}[https://ruby-doc.org/core-2.6.3/Object.html#method-i-eql-3F].
+    #
+    # @return [Boolean]
     def ==(other)
       if other.equal?(self)
         true
@@ -211,22 +245,39 @@ module ZohoCRM
       end
     end
 
+    # @!visibility private
     def freeze
       @hash.freeze
       super
     end
 
+    # @!visibility private
     def taint
       @hash.taint
       super
     end
 
+    # @!visibility private
     def untaint
       @hash.untaint
       super
     end
 
+    # Returns a string containing a human-readable representation of the fieldset.
+    #
+    # @example
+    #   fieldset = ZohoCRM::FieldSet.new
+    #   fieldset.inspect
+    #   # => #<ZohoCRM::FieldSet ()>
+    #   fieldset << ZohoCRM::Fields::Field.new(:email)
+    #   fieldset << ZohoCRM::Fields::Enum.new(:status, %i[enabled disabled])
+    #   fieldset.inspect
+    #   # => #<ZohoCRM::FieldSet: (email: #<ZohoCRM::Fields::Field ...> status: #<ZohoCRM::Fields::Enum ...>)>
+    #
     # @return [String]
+    #
+    # @see ZohoCRM::Fields::Field#inspect
+    # @see ZohoCRM::Fields::Enum#inspect
     def inspect
       fields_inspect_string = @hash.each_value.map { |f| "#{f.name}: #{f.inspect}" }.join(" ")
       format("#<%s (%s)>", self.class.name, fields_inspect_string)

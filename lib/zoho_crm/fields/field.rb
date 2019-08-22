@@ -64,6 +64,7 @@ module ZohoCRM
         false
       end
 
+      # @return [Integer]
       def hash
         name.hash
       end
@@ -82,6 +83,12 @@ module ZohoCRM
       end
       alias == eql?
 
+      # Returns a string containing a human-readable representation of the field.
+      #
+      # @example
+      #   ZohoCRM::Fields::Field.new(:email).inspect
+      #   # => #<ZohoCRM::Fields::Field name: "email" api_name: "Email" field_method: "email" options: {}>
+      #
       # @return [String]
       def inspect
         format("#<%s name: %p api_name: %p field_method: %s options: %p>",

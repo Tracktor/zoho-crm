@@ -12,6 +12,7 @@ module ZohoCRM
         @zoho_module_name = module_name.empty? ? nil : module_name
       end
 
+      # @return [ZohoCRM::FieldSet]
       def zoho_fields
         @zoho_fields ||= FieldSet.new
       end
@@ -36,14 +37,25 @@ module ZohoCRM
         zoho_fields.add(field)
       end
 
+      # Returns the field matching the +name+ argument or raise an error if it is not found.
+      #
+      # @param name [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
+      #
+      # @return [ZohoCRM::Fields::Field]
+      #
+      # @raise [ZohoCRM::FieldSet::FieldNotFoundError]
       def field(name)
         zoho_fields.fetch(name)
       end
 
+      # @param name [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
       def field?(name)
         zoho_fields.include?(name)
       end
 
+      # Returns a string containing a human-readable representation of the model class.
+      #
+      # @return [String]
       def inspect
         format("#<%s < %s zoho_module_name: %p fields: %p>", name, superclass.name, zoho_module_name, zoho_fields)
       end
@@ -57,20 +69,26 @@ module ZohoCRM
       @object = object
     end
 
+    # @return [String] The name of the Zoho module
     def zoho_module
       self.class.zoho_module_name || default_zoho_module_name
     end
 
+    # @return [Hash]
     def as_json
       zoho_fields.each_with_object({}) do |field, obj|
         obj[field.api_name.to_s] = ZohoCRM::Utils.jsonify(field.value_for(object))
       end
     end
 
+    # @return [String]
     def to_json
       JSON.generate(as_json)
     end
 
+    # Returns a string containing a human-readable representation of the model instance.
+    #
+    # @return [String]
     def inspect
       format("#<%s:%s zoho_module: %p object: %p fields: %p>",
         self.class.name, object_id, zoho_module, object, zoho_fields)
