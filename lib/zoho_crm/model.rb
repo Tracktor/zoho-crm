@@ -94,6 +94,21 @@ module ZohoCRM
         self.class.name, object_id, zoho_module, object, zoho_fields)
     end
 
+    # @!visibility private
+    def method_missing(method_name, *args, &block)
+      if method_name.to_s.end_with?("=") && field?(method_name.to_s.slice(0...-1))
+        f = field(method_name.to_s.slice(0...-1))
+        f.value = args.first
+      else
+        super
+      end
+    end
+
+    # @!visibility private
+    def respond_to_missing?(method_name, *args)
+      (method_name.to_s.end_with?("=") && field?(method_name.to_s.slice(0...-1))) || super
+    end
+
     protected
 
     def default_zoho_module_name

@@ -324,4 +324,58 @@ RSpec.describe ZohoCRM::Model do
       expect(instance.inspect).to match(regex)
     end
   end
+
+  describe "#method_missing" do
+    context "when the method name ends with '='" do
+      context "when the method name matches a field" do
+        before do
+          MyZohoModel = Class.new(described_class) {
+            zoho_field(:email, as: "Email")
+          }
+
+          MyUser = Struct.new(:email)
+        end
+
+        after do
+          Object.send(:remove_const, :MyZohoModel)
+          Object.send(:remove_const, :MyUser)
+        end
+
+        it "sets the static value of the field" do
+          user = MyUser.new("user@example.com")
+          instance = MyZohoModel.new(user)
+
+          expect { instance.email = "john@example.com" }
+            .to change { instance.field(:email).value_for(user) }
+            .from("user@example.com").to("john@example.com")
+        end
+      end
+    end
+  end
+
+  describe "#respond_to_missing?" do
+    context "when the method name ends with '='" do
+      context "when the method name matches a field" do
+        before do
+          MyZohoModel = Class.new(described_class) {
+            zoho_field(:email, as: "Email")
+          }
+
+          MyUser = Struct.new(:email)
+        end
+
+        after do
+          Object.send(:remove_const, :MyZohoModel)
+          Object.send(:remove_const, :MyUser)
+        end
+
+        it "returns true" do
+          user = MyUser.new("user@example.com")
+          instance = MyZohoModel.new(user)
+
+          expect(instance).to respond_to(:email=)
+        end
+      end
+    end
+  end
 end
