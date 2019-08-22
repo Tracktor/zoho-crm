@@ -42,8 +42,17 @@ module ZohoCRM
         @label = value && !string_value.empty? ? string_value : api_name.tr("_", " ")
       end
 
+      # Sets a static value for the field
+      def value=(value)
+        @static_value = value
+      end
+
       # @raise [ZohoCRM::Fields::Field::UnsupportedMethodTypeError]
       def value_for(object)
+        unless static_value.nil?
+          return static_value
+        end
+
         case field_method
         when Symbol, String
           object.public_send(field_method)
@@ -57,6 +66,15 @@ module ZohoCRM
           # Note: This should not happen, but anything is possible in Ruby
           raise UnsupportedMethodTypeError.new(field_method)
         end
+      end
+
+      # Returns +true+ if the field has non-+nil+ static value, +false+ otherwise.
+      #
+      # - Returns +true+ if the field has a static value that is not +nil+.
+      # - Returns +false+ if the field has a static value that is +nil+.
+      # - Returns +false+ if the field doesn't has a static value.
+      def static?
+        !static_value.nil?
       end
 
       # @return [false]
@@ -94,6 +112,10 @@ module ZohoCRM
         format("#<%s name: %p api_name: %p field_method: %s options: %p>",
           self.class.name, name, api_name, inspect_field_method, options)
       end
+
+      protected
+
+      attr_reader :static_value
 
       private
 

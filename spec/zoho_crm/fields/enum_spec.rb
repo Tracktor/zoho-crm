@@ -92,35 +92,71 @@ RSpec.describe ZohoCRM::Fields::Enum do
     end
   end
 
-  describe "#value_for" do
-    context "when the computed value is in the #elements attribute" do
-      subject(:field) { described_class.new(:status, {active: 1, inactive: 2}) }
-
-      before do
-        MyUser = Struct.new(:status)
-      end
-
-      after do
-        Object.send(:remove_const, :MyUser)
-      end
-
+  describe "#value=" do
+    context "when the given value is in the #elements attribute" do
       it "does not raise an error", aggregate_failures: true do
-        expect { field.value_for(MyUser.new(:active)) }.to_not raise_error
-        expect { field.value_for(MyUser.new(1)) }.to_not raise_error
-        expect { field.value_for(MyUser.new("inactive")) }.to_not raise_error
-        expect { field.value_for(MyUser.new(2)) }.to_not raise_error
+        field = described_class.new(:status, {active: 1, inactive: 2})
+
+        expect { field.value = :active }.to_not raise_error
+        expect { field.value = 1 }.to_not raise_error
+        expect { field.value = "inactive" }.to_not raise_error
+        expect { field.value = 2 }.to_not raise_error
       end
 
-      it "returns the raw value", aggregate_failures: true do
-        expect(field.value_for(MyUser.new(:active))).to eq(1)
-        expect(field.value_for(MyUser.new(1))).to eq(1)
-        expect(field.value_for(MyUser.new("inactive"))).to eq(2)
-        expect(field.value_for(MyUser.new(2))).to eq(2)
+      it "sets the static value" do
+        field = described_class.new(:status, {active: 1, inactive: 2})
+        static_value = :active
+
+        expect { field.value = static_value }
+          .to change { field.send(:static_value) }
+          .to(static_value)
       end
     end
 
-    context "when the computed value is not in the #elements attribute" do
-      subject(:field) { described_class.new(:status, %i[active inactive]) }
+    context "when the given value is nil" do
+      it "does not raise an error" do
+        field = described_class.new(:status, %i[active inactive])
+
+        expect { field.value = nil }.to_not raise_error
+      end
+
+      it "removes the static value" do
+        field = described_class.new(:status, %i[active inactive])
+        field.value = :active
+
+        expect { field.value = nil }
+          .to change { field.send(:static_value) }
+          .from(:active)
+          .to(nil)
+      end
+    end
+
+    context "when the given value is not in the #elements attribute" do
+      it "raises an error" do
+        field = described_class.new(:status, %i[active inactive])
+
+        expect { field.value = :deleted }
+          .to raise_error(described_class::InvalidValueError,
+                          /Invalid value :deleted for enum: #{Regexp.escape(field.human_readable_elements)}/)
+      end
+
+      it "doesn't set the static value" do
+        field = described_class.new(:status, %i[active inactive])
+
+        expect {
+          begin
+            field.value = :deleted
+          rescue described_class::InvalidValueError
+          end
+        }.to_not change { field.send(:static_value) }
+      end
+    end
+  end
+
+  describe "#value_for" do
+    context "when the field has a static value" do
+      subject(:field) do
+      end
 
       before do
         MyUser = Struct.new(:status)
@@ -130,14 +166,73 @@ RSpec.describe ZohoCRM::Fields::Enum do
         Object.send(:remove_const, :MyUser)
       end
 
-      it "raises an error", aggregate_failures: true do
-        expect { field.value_for(MyUser.new(:deleted)) }
-          .to raise_error(described_class::InvalidValueError,
-            /Invalid value :deleted for enum: #{Regexp.escape(field.human_readable_elements)}/)
+      it "returns the raw value", aggregate_failures: true do
+        field = described_class.new(:status, {active: 1, inactive: 2})
+        user = MyUser.new(:active)
 
-        expect { field.value_for(MyUser.new("archived")) }
-          .to raise_error(described_class::InvalidValueError,
-            /Invalid value "archived" for enum: #{Regexp.escape(field.human_readable_elements)}/)
+        field.value = :inactive
+        expect(field.value_for(user)).to eq(2)
+
+        field.value = 1
+        expect(field.value_for(user)).to eq(1)
+      end
+    end
+
+    context "when the field doesn't have a static value" do
+      context "when the computed value is in the #elements attribute" do
+        subject(:field) do
+          described_class.new(:status, {active: 1, inactive: 2}).tap do |f|
+            f.value = nil
+          end
+        end
+
+        before do
+          MyUser = Struct.new(:status)
+        end
+
+        after do
+          Object.send(:remove_const, :MyUser)
+        end
+
+        it "does not raise an error", aggregate_failures: true do
+          expect { field.value_for(MyUser.new(:active)) }.to_not raise_error
+          expect { field.value_for(MyUser.new(1)) }.to_not raise_error
+          expect { field.value_for(MyUser.new("inactive")) }.to_not raise_error
+          expect { field.value_for(MyUser.new(2)) }.to_not raise_error
+        end
+
+        it "returns the raw value", aggregate_failures: true do
+          expect(field.value_for(MyUser.new(:active))).to eq(1)
+          expect(field.value_for(MyUser.new(1))).to eq(1)
+          expect(field.value_for(MyUser.new("inactive"))).to eq(2)
+          expect(field.value_for(MyUser.new(2))).to eq(2)
+        end
+      end
+
+      context "when the computed value is not in the #elements attribute" do
+        subject(:field) do
+          described_class.new(:status, %i[active inactive]).tap do |f|
+            f.value = nil
+          end
+        end
+
+        before do
+          MyUser = Struct.new(:status)
+        end
+
+        after do
+          Object.send(:remove_const, :MyUser)
+        end
+
+        it "raises an error", aggregate_failures: true do
+          expect { field.value_for(MyUser.new(:deleted)) }
+            .to raise_error(described_class::InvalidValueError,
+              /Invalid value :deleted for enum: #{Regexp.escape(field.human_readable_elements)}/)
+
+          expect { field.value_for(MyUser.new("archived")) }
+            .to raise_error(described_class::InvalidValueError,
+              /Invalid value "archived" for enum: #{Regexp.escape(field.human_readable_elements)}/)
+        end
       end
     end
   end

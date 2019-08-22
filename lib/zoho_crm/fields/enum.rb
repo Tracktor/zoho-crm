@@ -32,6 +32,17 @@ module ZohoCRM
         @elements = normalize_elements(elements)
       end
 
+      # Sets a static value for the field
+      #
+      # @raise [ZohoCRM::Fields::Enum::FieldNotFoundError] if the given value is not a valid element.
+      def value=(value)
+        if value.nil? || element?(value)
+          super(value)
+        else
+          raise InvalidValueError.new(enum: self, value: value)
+        end
+      end
+
       # @raise [ZohoCRM::Fields::Enum::FieldNotFoundError] if the value is not a valid element.
       def value_for(object)
         value = super(object)

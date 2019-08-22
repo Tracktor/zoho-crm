@@ -183,8 +183,19 @@ RSpec.describe ZohoCRM::Fields::Field do
     end
   end
 
+  describe "#value=" do
+    it "sets the static value" do
+      field = described_class.new(:name)
+      static_value = "John Smith"
+
+      expect { field.value = static_value }
+        .to change { field.send(:static_value) }
+        .to(static_value)
+    end
+  end
+
   describe "#value_for" do
-    context "when the #field_method is a String" do
+    context "when the field has a static value" do
       before do
         MyUser = Struct.new(:full_name)
       end
@@ -193,47 +204,99 @@ RSpec.describe ZohoCRM::Fields::Field do
         Object.send(:remove_const, :MyUser)
       end
 
-      it "calls the method of the same name on the object" do
-        field = described_class.new(:name, "full_name")
-        object = MyUser.new("Sabine Jelahaie")
-
-        expect(field.value_for(object)).to eq(object.full_name)
-      end
-    end
-
-    context "when the #field_method is a Symbol" do
-      before do
-        MyUser = Struct.new(:full_name)
-      end
-
-      after do
-        Object.send(:remove_const, :MyUser)
-      end
-
-      it "calls the method of the same name on the object" do
+      it "returns the static value" do
         field = described_class.new(:name, :full_name)
+        field.value = "John Doe"
         object = MyUser.new("Sabine Jelahaie")
 
-        expect(field.value_for(object)).to eq(object.full_name)
+        expect(field.value_for(object)).to eq("John Doe")
       end
     end
 
-    context "when the #field_method is a Proc" do
-      before do
-        MyUser = Struct.new(:first_name, :last_name, keyword_init: true)
+    context "when the field doesn't have a static value" do
+      context "when the #field_method is a String" do
+        before do
+          MyUser = Struct.new(:full_name)
+        end
+
+        after do
+          Object.send(:remove_const, :MyUser)
+        end
+
+        it "calls the method of the same name on the object" do
+          field = described_class.new(:name, "full_name")
+          field.value = nil
+          object = MyUser.new("Sabine Jelahaie")
+
+          expect(field.value_for(object)).to eq(object.full_name)
+        end
       end
 
-      after do
-        Object.send(:remove_const, :MyUser)
+      context "when the #field_method is a Symbol" do
+        before do
+          MyUser = Struct.new(:full_name)
+        end
+
+        after do
+          Object.send(:remove_const, :MyUser)
+        end
+
+        it "calls the method of the same name on the object" do
+          field = described_class.new(:name, :full_name)
+          field.value = nil
+          object = MyUser.new("Sabine Jelahaie")
+
+          expect(field.value_for(object)).to eq(object.full_name)
+        end
       end
 
-      it "executes the Proc in the context of the object", aggregate_failures: true do
-        field1 = described_class.new(:name) { |obj| "#{obj.last_name}, #{obj.first_name} #{obj.last_name}" }
-        field2 = described_class.new(:name) { "#{first_name} ! #{first_name} ! #{first_name} #{last_name}" }
-        object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+      context "when the #field_method is a Proc" do
+        before do
+          MyUser = Struct.new(:first_name, :last_name, keyword_init: true)
+        end
 
-        expect(field1.value_for(object)).to eq("#{object.last_name}, #{object.first_name} #{object.last_name}")
-        expect(field2.value_for(object)).to eq("#{object.first_name} ! #{object.first_name} ! #{object.first_name} #{object.last_name}")
+        after do
+          Object.send(:remove_const, :MyUser)
+        end
+
+        it "executes the Proc in the context of the object", aggregate_failures: true do
+          field1 = described_class.new(:name) { |obj| "#{obj.last_name}, #{obj.first_name} #{obj.last_name}" }
+          field2 = described_class.new(:name) { "#{first_name} ! #{first_name} ! #{first_name} #{last_name}" }
+          field1.value = nil
+          field2.value = nil
+          object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+
+          expect(field1.value_for(object)).to eq("#{object.last_name}, #{object.first_name} #{object.last_name}")
+          expect(field2.value_for(object)).to eq("#{object.first_name} ! #{object.first_name} ! #{object.first_name} #{object.last_name}")
+        end
+      end
+    end
+  end
+
+  describe "#static?" do
+    context "when there is a static value" do
+      it "returns true" do
+        field = described_class.new(:name)
+        field.value = "John Smith"
+
+        expect(field).to be_static
+      end
+    end
+
+    context "when the static value is nil" do
+      it "returns false" do
+        field = described_class.new(:name)
+        field.value = nil
+
+        expect(field).to_not be_static
+      end
+    end
+
+    context "when there is no static value" do
+      it "returns false" do
+        field = described_class.new(:name)
+
+        expect(field).to_not be_static
       end
     end
   end
