@@ -235,8 +235,9 @@ RSpec.describe ZohoCRM::FieldSet do
   describe "#member?" do
     subject(:field_set) { described_class.new }
 
-    it "is an alias for #include?" do
+    it "is an alias for #include?", aggregate_failures: true do
       expect(field_set.method(:member?)).to eql(field_set.method(:include?))
+      expect(field_set.method(:member?).original_name).to eq(:include?)
     end
   end
 
@@ -268,8 +269,9 @@ RSpec.describe ZohoCRM::FieldSet do
   describe "#length" do
     subject(:field_set) { described_class.new }
 
-    it "is an alias for #size" do
+    it "is an alias for #size", aggregate_failures: true do
       expect(field_set.method(:length)).to eql(field_set.method(:size))
+      expect(field_set.method(:length).original_name).to eq(:size)
     end
   end
 

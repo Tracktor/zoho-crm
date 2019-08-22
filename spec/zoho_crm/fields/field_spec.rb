@@ -323,8 +323,9 @@ RSpec.describe ZohoCRM::Fields::Field do
   describe "#==" do
     subject(:field) { described_class.new(:alias) }
 
-    it "is an alias for #eql?" do
+    it "is an alias for #eql?", aggregate_failures: true do
       expect(field.method(:==)).to eql(field.method(:eql?))
+      expect(field.method(:==).original_name).to eq(:eql?)
     end
   end
 
