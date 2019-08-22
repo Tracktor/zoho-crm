@@ -57,10 +57,40 @@ module ZohoCRM
       end
     end
 
+    # Add a field to the fieldset.
+    #
+    # @param field [ZohoCRM::Fields::Field]
+    #
+    # @return [ZohoCRM::Fields::Field]
+    #
     # @raise [TypeError] if +field+ is not a {ZohoCRM::Fields::Field}
+    def add(field)
+      raise TypeError unless field.is_a?(ZohoCRM::Fields::Field)
+
+      unless include?(field)
+        @hash[field.name] = field
+      end
+
+      field
+    end
+
+    # Add a field to the fieldset (chainable).
+    #
+    # Unlike {#add}, this method is chainable.
+    #
+    # @example
+    #   field_set = ZohoCRM::FieldSet.new
+    #   field_set << ZohoCRM::Fields::Field.new(:email) << ZohoCRM::Fields::Field.new(:name)
+    #   # => field_set
+    #   field_set.size
+    #   # => 2
+    #
+    # @param field [ZohoCRM::Fields::Field]
     #
     # @return [self]
-    def add(field)
+    #
+    # @raise [TypeError] if +field+ is not a {ZohoCRM::Fields::Field}
+    def <<(field)
       raise TypeError unless field.is_a?(ZohoCRM::Fields::Field)
 
       unless include?(field)
@@ -69,7 +99,6 @@ module ZohoCRM
 
       self
     end
-    alias << add
 
     def include?(other)
       key = key_for(other)

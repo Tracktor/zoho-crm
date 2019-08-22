@@ -160,22 +160,15 @@ RSpec.describe ZohoCRM::FieldSet do
       expect { field_set.add(ZohoCRM::Fields::Field.new(:email)) }.to_not change(field_set, :size)
     end
 
-    it "returns the field_set" do
-      expect(field_set.add(ZohoCRM::Fields::Field.new(:email))).to eql(field_set)
-    end
+    it "returns the field" do
+      field = ZohoCRM::Fields::Field.new(:email)
 
-    it "is chainable" do
-      expect { field_set.add(ZohoCRM::Fields::Field.new(:email)).add(ZohoCRM::Fields::Field.new(:name)) }
-        .to change(field_set, :size).by(2)
+      expect(field_set.add(field)).to eql(field)
     end
   end
 
   describe "#<<" do
     subject(:field_set) { described_class.new }
-
-    it "is an alias for #add" do
-      expect(field_set.method(:<<)).to eql(field_set.method(:add))
-    end
 
     it "requires a field as argument", aggregate_failures: true do
       expect { field_set.public_send(:<<) }.to raise_error(ArgumentError, /wrong number of arguments/)
@@ -192,6 +185,12 @@ RSpec.describe ZohoCRM::FieldSet do
       field_set << ZohoCRM::Fields::Field.new(:email)
 
       expect { field_set << ZohoCRM::Fields::Field.new(:email) }.to_not change(field_set, :size)
+    end
+
+    it "returns the fieldset" do
+      field = ZohoCRM::Fields::Field.new(:email)
+
+      expect(field_set << field).to eql(field_set)
     end
 
     it "is chainable" do
