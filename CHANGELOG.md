@@ -1,6 +1,14 @@
 Changelog
 =========
 
+[v0.2.12](https://github.com/Tracktor/zoho-crm/tree/v0.2.12) (2019-08-23)
+-------------------------------------------------------------------------
+
+### Deprecations
+
+- Deprecate the `ZohoCRM::Fields::Field.build` and `ZohoCRM::Fields::Enum.build` methods.<br>
+ **They will be removed in version 0.3.0**.
+
 [v0.2.11](https://github.com/Tracktor/zoho-crm/tree/v0.2.11) (2019-08-12)
 -------------------------------------------------------------------------
 
