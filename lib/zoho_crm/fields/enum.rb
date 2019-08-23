@@ -24,19 +24,6 @@ module ZohoCRM
 
       attr_reader :elements
 
-      # *Caveat:* Options are parsed as keyword arguments, so all the keys must be symbols (not strings)
-      #
-      # @deprecated Will be removed in version 0.3.0
-      def self.build(field_name, field_method = nil, **options, &block)
-        options = ZohoCRM::Utils.normalize_options(options)
-
-        unless options.key?("values")
-          raise ArgumentError, "'values' key not found in options: #{options.inspect}"
-        end
-
-        new(field_name, options.delete("values"), field_method, **options, &block)
-      end
-
       # Note: This violates LSP (Liskov substitution principle)
       # but complying to it would add complexity with no gain.
       def initialize(field_name, elements, field_method = nil, **options, &block)

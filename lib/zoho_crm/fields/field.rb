@@ -19,17 +19,6 @@ module ZohoCRM
       attr_reader :field_method
       attr_reader :options
 
-      # *Caveat:* Options are parsed as keyword arguments, so all the keys must be symbols (not strings)
-      #
-      # @deprecated Will be removed in version 0.3.0
-      def self.build(field_name, field_method = nil, **options, &block)
-        if options.key?(:values)
-          ZohoCRM::Fields::Enum.build(field_name, field_method, **options, &block)
-        else
-          new(field_name, field_method, **options, &block)
-        end
-      end
-
       def initialize(field_name, field_method = nil, **options, &block)
         @options = ZohoCRM::Utils.normalize_options(options)
 

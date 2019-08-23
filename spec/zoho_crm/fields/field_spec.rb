@@ -30,24 +30,6 @@ RSpec.describe ZohoCRM::Fields::Field do
     it { is_expected.to have_attr_reader(:options) }
   end
 
-  describe ".build" do
-    context "with a :values key in the options" do
-      subject(:field) { described_class.build(:status, values: %i[enabled disabled]) }
-
-      it "builds a field of type ZohoCRM::Fields::Enum" do
-        expect(field).to be_an_instance_of(ZohoCRM::Fields::Enum)
-      end
-    end
-
-    context "without a :values key in the options" do
-      subject(:field) { described_class.build(:email) }
-
-      it "builds a new field" do
-        expect(field).to be_an_instance_of(described_class)
-      end
-    end
-  end
-
   describe "#initialize" do
     it "normalizes the options", aggregate_failures: true do
       field = described_class.new(:email, foo: 42)

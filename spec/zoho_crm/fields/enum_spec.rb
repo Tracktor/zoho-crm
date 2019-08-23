@@ -53,29 +53,6 @@ RSpec.describe ZohoCRM::Fields::Enum do
     it { is_expected.to have_attr_reader(:elements) }
   end
 
-  describe ".build" do
-    it "requires a field_name as argument and values in the options", aggregate_failures: true do
-      expect { described_class.build }.to raise_error(ArgumentError, /wrong number of arguments/)
-      expect { described_class.build(:status) }.to raise_error(ArgumentError, /'values' key not found in options/)
-      expect { described_class.build(:status, values: []) }.to_not raise_error
-    end
-
-    context "with a :values key in the options" do
-      subject(:field) { described_class.build(:status, values: %i[enabled disabled]) }
-
-      it "builds a field of type #{described_class.name}" do
-        expect(field).to be_an_instance_of(described_class)
-      end
-    end
-
-    context "without a :values key in the options" do
-      it "raises an error" do
-        expect { described_class.build(:status, label: "Status") }
-          .to raise_error(ArgumentError, %('values' key not found in options: {"label"=>"Status"}))
-      end
-    end
-  end
-
   describe "#initialize" do
     it "normalizes the options", aggregate_failures: true do
       field = described_class.new(:status, [], foo: 42)
