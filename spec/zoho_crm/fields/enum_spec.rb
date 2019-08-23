@@ -226,7 +226,7 @@ RSpec.describe ZohoCRM::Fields::Enum do
   end
 
   describe "#human_readable_elements" do
-    subject(:field) { described_class.build(:status, values: %i[enabled disabled]) }
+    subject(:field) { described_class.new(:status, %i[enabled disabled]) }
 
     it "returns a human-readable representation of the elements" do
       expect(field.human_readable_elements).to match(/\A\["enabled" \(:enabled\), "disabled" \(:disabled\)\]\z/)
