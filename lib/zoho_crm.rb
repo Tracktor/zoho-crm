@@ -15,6 +15,7 @@ end
 
 require_relative "zoho_crm/version"
 require_relative "zoho_crm/utils"
+require_relative "zoho_crm/utils/copiable"
 require_relative "zoho_crm/field_set"
 require_relative "zoho_crm/fields"
 require_relative "zoho_crm/model"
