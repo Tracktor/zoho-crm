@@ -4,6 +4,7 @@ require "bundler/setup"
 require "zoho_crm"
 
 require_relative "support/matchers/have_attr"
+require_relative "support/matchers/not_change"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
