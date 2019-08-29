@@ -91,6 +91,15 @@ module ZohoCRM
       instance_variable_set(:@zoho_fields, ZohoCRM::Utils::Copiable.deep_dup(original_zoho_fields))
     end
 
+    # Resets the {#zoho_fields} to a copy of {ZohoCRM::Model.zoho_fields ZohoCRM::Model.zoho_fields}
+    #
+    # @return [self]
+    def reset
+      @zoho_fields = ZohoCRM::Utils::Copiable.deep_dup(self.class.zoho_fields)
+
+      self
+    end
+
     # @return [String] The name of the Zoho module
     def zoho_module
       self.class.zoho_module_name || default_zoho_module_name

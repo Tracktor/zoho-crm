@@ -277,6 +277,60 @@ RSpec.describe ZohoCRM::Model do
     end
   end
 
+  describe "#reset" do
+    before do
+      MyZohoModel = Class.new(described_class) {
+        zoho_field(:first_name)
+      }
+
+      MyUser = Struct.new(:first_name, :last_name, keyword_init: true)
+    end
+
+    after do
+      Object.send(:remove_const, :MyZohoModel)
+      Object.send(:remove_const, :MyUser)
+    end
+
+    it "resets all the fields to the ones defined on the class", aggregate_failures: true do
+      object = MyUser.new(first_name: "Yamanikto", last_name: "Yama")
+      instance = MyZohoModel.new(object)
+      old_zoho_fields_object_id = instance.zoho_fields.object_id
+      last_name_field = ZohoCRM::Fields::Field.new(:last_name)
+
+      expect(MyZohoModel.zoho_fields.size).to eq(1)
+      expect(instance.zoho_fields.size).to eq(1)
+
+      expect { instance.zoho_fields << last_name_field }
+        .to change { instance.zoho_fields.size }.by(1)
+        .and change { instance.zoho_fields.include?(last_name_field) }.from(false).to(true)
+        .and not_change { MyZohoModel.zoho_fields.size }
+
+      expect(MyZohoModel.zoho_fields.size).to eq(1)
+      expect(instance.zoho_fields.size).to eq(2)
+      expect(MyZohoModel.zoho_fields).to_not include(last_name_field)
+
+      expect { instance.reset }
+        .to change { instance.zoho_fields.size }.by(-1)
+        .and change { instance.zoho_fields.include?(last_name_field) }.from(true).to(false)
+        .and change { instance.zoho_fields.object_id }.from(old_zoho_fields_object_id).to(an_instance_of(Integer))
+        .and not_change { MyZohoModel.zoho_fields.size }
+
+      expect(instance.zoho_fields.object_id).to_not eq(old_zoho_fields_object_id)
+      expect(instance.zoho_fields.object_id).to_not eq(MyZohoModel.zoho_fields.object_id)
+
+      expect(MyZohoModel.zoho_fields.size).to eq(1)
+      expect(instance.zoho_fields.size).to eq(1)
+      expect(MyZohoModel.zoho_fields).to_not include(last_name_field)
+    end
+
+    it "returns itself" do
+      object = MyUser.new(first_name: "Yamanikto")
+      instance = MyZohoModel.new(object)
+
+      expect(instance.reset).to eql(instance)
+    end
+  end
+
   describe "#zoho_fields" do
     let(:model) { Class.new(described_class) { zoho_field(:first_name) } }
 
