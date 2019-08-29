@@ -2,8 +2,6 @@
 
 module ZohoCRM
   class Model
-    extend Forwardable
-
     class << self
       attr_reader :zoho_module_name
 
@@ -61,17 +59,35 @@ module ZohoCRM
       end
     end
 
-    def_delegators :'self.class', :zoho_fields, :field, :field?
-
     attr_reader :object
+
+    # @return [ZohoCRM::FieldSet]
+    attr_reader :zoho_fields
 
     def initialize(object)
       @object = object
+      @zoho_fields = ZohoCRM::Utils::Copiable.deep_dup(self.class.zoho_fields)
     end
 
     # @return [String] The name of the Zoho module
     def zoho_module
       self.class.zoho_module_name || default_zoho_module_name
+    end
+
+    # Returns the field matching the +name+ argument or raise an error if it is not found.
+    #
+    # @param name [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
+    #
+    # @return [ZohoCRM::Fields::Field]
+    #
+    # @raise [ZohoCRM::FieldSet::FieldNotFoundError]
+    def field(name)
+      zoho_fields.fetch(name)
+    end
+
+    # @param name [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
+    def field?(name)
+      zoho_fields.include?(name)
     end
 
     # @return [Hash]

@@ -182,35 +182,75 @@ RSpec.describe ZohoCRM::Model do
 
       expect(instance.object).to eq(object)
     end
+
+    it "duplicates the fields defined on the class", aggregate_failures: true do
+      model = Class.new(described_class) { zoho_field(:email, as: "Email") }
+      object = Object.new
+      instance = model.new(object)
+
+      expect(instance.zoho_fields).to eq(model.zoho_fields)
+      expect(instance.zoho_fields.object_id).to_not eq(model.zoho_fields.object_id)
+    end
   end
 
   describe "#zoho_fields" do
-    subject(:model) { Class.new(described_class) { zoho_field(:first_name) } }
+    let(:model) { Class.new(described_class) { zoho_field(:first_name) } }
 
-    it "is delegated to the class" do
+    it "a copy of the class' zoho_fields", aggregate_failures: true do
       instance = model.new(Object.new)
 
       expect(instance.zoho_fields).to eq(model.zoho_fields)
+      expect(instance.zoho_fields.object_id).to_not eq(model.zoho_fields.object_id)
     end
   end
 
   describe "#field" do
-    subject(:model) { Class.new(described_class) { zoho_field(:first_name) } }
+    context "when the field exists" do
+      let(:model) { Class.new(described_class) { zoho_field(:first_name) } }
 
-    it "is delegated to the class" do
-      instance = model.new(Object.new)
+      it "returns the field", aggregate_failures: true do
+        instance = model.new(Object.new)
+        field = instance.field(:first_name)
 
-      expect(instance.field(:first_name)).to eq(model.field(:first_name))
+        expect(field).to be_a(ZohoCRM::Fields::Field)
+        expect(field.name).to eql("first_name")
+      end
+    end
+
+    context "when the field does not exist" do
+      let(:model) { Class.new(described_class) }
+
+      it "raises an error", aggregate_failures: true do
+        instance = model.new(Object.new)
+
+        expect { instance.field(:first_name) }.to raise_error(ZohoCRM::FieldSet::FieldNotFoundError) do |error|
+          expect(error.field_name).to eq(:first_name)
+          expect(error.fields).to eq(model.zoho_fields)
+          expect(error.message).to eq("Field not found: first_name")
+        end
+      end
     end
   end
 
   describe "#field?" do
-    subject(:model) { Class.new(described_class) { zoho_field(:first_name) } }
+    context "when the field exists" do
+      let(:model) { Class.new(described_class) { zoho_field(:first_name) } }
 
-    it "is delegated to the class" do
-      instance = model.new(Object.new)
+      it "returns true" do
+        instance = model.new(Object.new)
 
-      expect(instance.field?(:first_name)).to eq(model.field?(:first_name))
+        expect(instance.field?(:first_name)).to be(true)
+      end
+    end
+
+    context "when the field does not exist" do
+      let(:model) { Class.new(described_class) }
+
+      it "returns false" do
+        instance = model.new(Object.new)
+
+        expect(instance.field?(:first_name)).to be(false)
+      end
     end
   end
 

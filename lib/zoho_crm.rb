@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "json"
-require "forwardable"
 require "time"
 require "date"
 require "bigdecimal"
