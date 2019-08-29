@@ -69,6 +69,28 @@ module ZohoCRM
       @zoho_fields = ZohoCRM::Utils::Copiable.deep_dup(self.class.zoho_fields)
     end
 
+    # @param original_model [ZohoCRM::Model]
+    #
+    # @return [ZohoCRM::Model]
+    def initialize_clone(original_model)
+      super
+
+      original_zoho_fields = original_model.instance_variable_get(:@zoho_fields)
+
+      instance_variable_set(:@zoho_fields, ZohoCRM::Utils::Copiable.deep_clone(original_zoho_fields))
+    end
+
+    # @param original_model [ZohoCRM::Model]
+    #
+    # @return [ZohoCRM::Model]
+    def initialize_dup(original_model)
+      super
+
+      original_zoho_fields = original_model.instance_variable_get(:@zoho_fields)
+
+      instance_variable_set(:@zoho_fields, ZohoCRM::Utils::Copiable.deep_dup(original_zoho_fields))
+    end
+
     # @return [String] The name of the Zoho module
     def zoho_module
       self.class.zoho_module_name || default_zoho_module_name

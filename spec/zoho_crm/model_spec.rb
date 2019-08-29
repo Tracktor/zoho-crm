@@ -193,6 +193,90 @@ RSpec.describe ZohoCRM::Model do
     end
   end
 
+  describe "#clone" do
+    before do
+      MyZohoModel = Class.new(described_class) {
+        zoho_module("CustomModule")
+        zoho_field(:first_name)
+      }
+    end
+
+    after do
+      Object.send(:remove_const, :MyZohoModel)
+    end
+
+    it "doesn't clone the object" do
+      object = Object.new
+      original_instance = MyZohoModel.new(object)
+      cloned_instance = original_instance.clone
+
+      expect(cloned_instance.object.object_id).to eq(original_instance.object.object_id)
+    end
+
+    it "clones the zoho fields", aggregate_failures: true do
+      object = Object.new
+      original_instance = MyZohoModel.new(object)
+      original_instance.field(:first_name).value = "Sabine"
+      cloned_instance = original_instance.clone
+
+      original_first_name = original_instance.field(:first_name).value_for(object)
+      cloned_first_name = cloned_instance.field(:first_name).value_for(object)
+
+      expect(cloned_instance.zoho_fields).to eq(original_instance.zoho_fields)
+      expect(cloned_instance.zoho_fields.object_id).to_not eq(original_instance.zoho_fields.object_id)
+
+      expect(original_first_name).to eq("Sabine")
+      expect(original_first_name).to be_frozen
+
+      expect(cloned_first_name).to eq("Sabine")
+      expect(cloned_first_name).to be_frozen
+
+      expect(cloned_first_name.object_id).to_not eq(original_first_name.object_id)
+    end
+  end
+
+  describe "#dup" do
+    before do
+      MyZohoModel = Class.new(described_class) {
+        zoho_module("CustomModule")
+        zoho_field(:first_name)
+      }
+
+      MyUser = Struct.new(:first_name)
+    end
+
+    after do
+      Object.send(:remove_const, :MyZohoModel)
+      Object.send(:remove_const, :MyUser)
+    end
+
+    it "doesn't duplicate the object" do
+      object = MyUser.new("Yamanikto")
+      original_instance = MyZohoModel.new(object)
+      dupped_instance = original_instance.dup
+
+      expect(dupped_instance.object.object_id).to eq(original_instance.object.object_id)
+    end
+
+    it "duplicates the zoho fields", aggregate_failures: true do
+      object = MyUser.new("Yamanikto")
+      original_instance = MyZohoModel.new(object)
+      original_instance.field(:first_name).value = "Sabine"
+      dupped_instance = original_instance.dup
+
+      original_first_name = original_instance.field(:first_name).value_for(object)
+      dupped_first_name = dupped_instance.field(:first_name).value_for(object)
+
+      expect(dupped_instance.zoho_fields).to eq(original_instance.zoho_fields)
+      expect(dupped_instance.zoho_fields.object_id).to_not eq(original_instance.zoho_fields.object_id)
+
+      expect(original_first_name).to eq("Sabine")
+      expect(dupped_first_name).to eq("Yamanikto")
+
+      expect(dupped_first_name.object_id).to_not eq(original_first_name.object_id)
+    end
+  end
+
   describe "#zoho_fields" do
     let(:model) { Class.new(described_class) { zoho_field(:first_name) } }
 
