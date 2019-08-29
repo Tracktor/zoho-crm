@@ -539,30 +539,61 @@ RSpec.describe ZohoCRM::Model do
         end
       end
     end
+
+    context "when the method name matches a field" do
+      before do
+        MyZohoModel = Class.new(described_class) {
+          zoho_field(:full_name) { |object| "#{object.first_name} #{object.last_name}" }
+        }
+
+        MyUser = Struct.new(:first_name, :last_name, keyword_init: true)
+      end
+
+      after do
+        Object.send(:remove_const, :MyZohoModel)
+        Object.send(:remove_const, :MyUser)
+      end
+
+      it "returns the value of the field" do
+        user = MyUser.new(first_name: "Yamanikto", last_name: "Yama")
+        instance = MyZohoModel.new(user)
+
+        expect(instance.full_name).to eq("Yamanikto Yama")
+      end
+    end
   end
 
   describe "#respond_to_missing?" do
+    before do
+      MyZohoModel = Class.new(described_class) {
+        zoho_field(:email, as: "Email")
+      }
+
+      MyUser = Struct.new(:email)
+    end
+
+    after do
+      Object.send(:remove_const, :MyZohoModel)
+      Object.send(:remove_const, :MyUser)
+    end
+
     context "when the method name ends with '='" do
       context "when the method name matches a field" do
-        before do
-          MyZohoModel = Class.new(described_class) {
-            zoho_field(:email, as: "Email")
-          }
-
-          MyUser = Struct.new(:email)
-        end
-
-        after do
-          Object.send(:remove_const, :MyZohoModel)
-          Object.send(:remove_const, :MyUser)
-        end
-
         it "returns true" do
           user = MyUser.new("user@example.com")
           instance = MyZohoModel.new(user)
 
           expect(instance).to respond_to(:email=)
         end
+      end
+    end
+
+    context "when the method name matches a field" do
+      it "returns true" do
+        user = MyUser.new("user@example.com")
+        instance = MyZohoModel.new(user)
+
+        expect(instance).to respond_to(:email)
       end
     end
   end

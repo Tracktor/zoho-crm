@@ -143,9 +143,15 @@ module ZohoCRM
 
     # @!visibility private
     def method_missing(method_name, *args, &block)
-      if method_name.to_s.end_with?("=") && field?(method_name.to_s.slice(0...-1))
-        f = field(method_name.to_s.slice(0...-1))
-        f.value = args.first
+      if method_name.to_s.end_with?("=")
+        if field?(method_name.to_s.slice(0...-1))
+          f = field(method_name.to_s.slice(0...-1))
+          f.value = args.first
+        else
+          super
+        end
+      elsif field?(method_name.to_s)
+        field(method_name).value_for(object)
       else
         super
       end
@@ -153,7 +159,11 @@ module ZohoCRM
 
     # @!visibility private
     def respond_to_missing?(method_name, *args)
-      (method_name.to_s.end_with?("=") && field?(method_name.to_s.slice(0...-1))) || super
+      if method_name.to_s.end_with?("=")
+        field?(method_name.to_s.slice(0...-1))
+      else
+        field?(method_name.to_s) || super
+      end
     end
 
     protected
