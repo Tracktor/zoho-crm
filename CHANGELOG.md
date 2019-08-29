@@ -1,6 +1,34 @@
 Changelog
 =========
 
+[v0.3.0](https://github.com/Tracktor/zoho-crm/tree/v0.3.0) (2019-08-29)
+-------------------------------------------------------------------------
+
+### Breaking changes
+
+- Remove the `ZohoCRM::Fields::Field.build` and `ZohoCRM::Fields::Enum.build` methods.<br>
+  You should use the `ZohoCRM::Fields::Field#initialize` and `ZohoCRM::Fields::Enum#initialize` methods instead.
+- Make the `ZohoCRM::FieldSet#add` method not chainable.<br>
+  If you want to add multiple fields using chaining, use the `ZohoCRM::FieldSet#<<` method.
+
+### Changes
+
+- Instances of `ZohoCRM::Model` now have their own copy of the fields defined on the class.<br>
+  This means that an instance's fields can be modified and additional fields can be added without affecting other instances.
+
+### Features
+
+- Add the `ZohoCRM::Utils::Copiable` module to `deep_clone` and `deep_dup` objects.
+- Add a way to manually assign a static value to a model instance's field.
+- Add a way to retrieve the value of a field from a model instance using the name of the field.
+- Add a method to reset the state of a model instance to be the same as the one defined on the class.
+  - Any static value assigned to fields will be discarded.
+  - Any additional field on the instance will be discarded.
+
+### Enhancements
+
+- Customize the way `ZohoCRM::Model`, `ZohoCRM::FieldSet`, `ZohoCRM::Fields::Field` and `ZohoCRM::Fields::Enum` are cloned and dupped.
+
 [v0.2.12](https://github.com/Tracktor/zoho-crm/tree/v0.2.12) (2019-08-23)
 -------------------------------------------------------------------------
 
