@@ -38,6 +38,90 @@ RSpec.describe ZohoCRM::FieldSet do
     end
   end
 
+  describe "#clone" do
+    before do
+      MyUser = Struct.new(:first_name, :last_name, keyword_init: true)
+    end
+
+    after do
+      Object.send(:remove_const, :MyUser)
+    end
+
+    it "clones the field set" do
+      original_field_set = described_class.new
+      cloned_field_set = original_field_set.clone
+
+      expect(cloned_field_set.object_id).to_not eq(original_field_set.object_id)
+    end
+
+    it "clones the field set's attributes", aggregate_failures: true do
+      original_field_set = described_class.new
+      cloned_field_set = original_field_set.clone
+
+      original_field_set_hash = original_field_set.instance_variable_get(:@hash)
+      cloned_field_set_hash = cloned_field_set.instance_variable_get(:@hash)
+
+      expect(cloned_field_set_hash).to eq(original_field_set_hash)
+      expect(cloned_field_set_hash.object_id).to_not eq(original_field_set_hash.object_id)
+    end
+
+    it "clones the field set's fields", aggregate_failures: true do
+      original_field_set = ZohoCRM::FieldSet.new
+      original_field_set << ZohoCRM::Fields::Field.new(:email)
+      original_field_set << ZohoCRM::Fields::Enum.new(:status, %i[enabled])
+      cloned_field_set = original_field_set.clone
+
+      expect(cloned_field_set.size).to eq(original_field_set.size)
+
+      cloned_field_set.to_a.zip(original_field_set.to_a).each do |(cloned_field, original_field)|
+        expect(cloned_field).to eq(original_field)
+        expect(cloned_field.object_id).to_not eq(original_field.object_id)
+      end
+    end
+  end
+
+  describe "#dup" do
+    before do
+      MyUser = Struct.new(:first_name, :last_name, keyword_init: true)
+    end
+
+    after do
+      Object.send(:remove_const, :MyUser)
+    end
+
+    it "duplicates the field set" do
+      original_field_set = described_class.new
+      dupped_field_set = original_field_set.dup
+
+      expect(dupped_field_set.object_id).to_not eq(original_field_set.object_id)
+    end
+
+    it "duplicates the field set's attributes", aggregate_failures: true do
+      original_field_set = described_class.new
+      dupped_field_set = original_field_set.dup
+
+      original_field_set_hash = original_field_set.instance_variable_get(:@hash)
+      dupped_field_set_hash = dupped_field_set.instance_variable_get(:@hash)
+
+      expect(dupped_field_set_hash).to eq(original_field_set_hash)
+      expect(dupped_field_set_hash.object_id).to_not eq(original_field_set_hash.object_id)
+    end
+
+    it "duplicates the field set's fields", aggregate_failures: true do
+      original_field_set = ZohoCRM::FieldSet.new
+      original_field_set << ZohoCRM::Fields::Field.new(:email)
+      original_field_set << ZohoCRM::Fields::Enum.new(:status, %i[enabled])
+      dupped_field_set = original_field_set.dup
+
+      expect(dupped_field_set.size).to eq(original_field_set.size)
+
+      dupped_field_set.to_a.zip(original_field_set.to_a).each do |(dupped_field, original_field)|
+        expect(dupped_field).to eq(original_field)
+        expect(dupped_field.object_id).to_not eq(original_field.object_id)
+      end
+    end
+  end
+
   describe "#[]" do
     it "requires a key as argument", aggregate_failures: true do
       field_set = described_class.new

@@ -32,6 +32,26 @@ module ZohoCRM
         @elements = normalize_elements(elements)
       end
 
+      # @param original_field [ZohoCRM::Fields::Enum]
+      # @return [ZohoCRM::Fields::Enum]
+      def initialize_clone(original_field)
+        super
+
+        original_elements = original_field.instance_variable_get(:@elements)
+
+        instance_variable_set(:@elements, ZohoCRM::Utils::Copiable.deep_clone(original_elements))
+      end
+
+      # @param original_field [ZohoCRM::Fields::Enum]
+      # @return [ZohoCRM::Fields::Enum]
+      def initialize_dup(original_field)
+        super
+
+        original_elements = original_field.instance_variable_get(:@elements)
+
+        instance_variable_set(:@elements, ZohoCRM::Utils::Copiable.deep_dup(original_elements))
+      end
+
       # Sets a static value for the field
       #
       # @raise [ZohoCRM::Fields::Enum::FieldNotFoundError] if the given value is not a valid element.

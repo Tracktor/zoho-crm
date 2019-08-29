@@ -92,6 +92,114 @@ RSpec.describe ZohoCRM::Fields::Enum do
     end
   end
 
+  describe "#clone" do
+    before do
+      MyUser = Struct.new(:status)
+    end
+
+    after do
+      Object.send(:remove_const, :MyUser)
+    end
+
+    it "clones the enum" do
+      original_enum = described_class.new(:status, %i[enabled])
+      cloned_enum = original_enum.clone
+
+      expect(cloned_enum.object_id).to_not eq(original_enum.object_id)
+    end
+
+    it "clones the enum's attributes", aggregate_failures: true do
+      object = MyUser.new(:active)
+      original_enum = described_class.new(:status, {active: 1, inactive: 2}, as: "User_Status")
+      cloned_enum = original_enum.clone
+
+      expect(cloned_enum.name).to eq(original_enum.name)
+      expect(cloned_enum.api_name).to eq(original_enum.api_name)
+      expect(cloned_enum.label).to eq(original_enum.label)
+
+      expect(cloned_enum.options).to eq(original_enum.options)
+      expect(cloned_enum.options.object_id).to_not eq(original_enum.options.object_id)
+      expect(cloned_enum.field_method.object_id).to_not eq(original_enum.field_method.object_id)
+
+      expect(cloned_enum.elements).to eq(original_enum.elements)
+      expect(cloned_enum.elements.object_id).to_not eq(original_enum.elements.object_id)
+
+      expect(cloned_enum.value_for(object)).to eq(original_enum.value_for(object))
+    end
+
+    it "clones the static value of the cloned enum", aggregate_failures: true do
+      original_enum = described_class.new(:status, {active: 1, inactive: 2})
+      original_enum.value = 2
+      cloned_enum = original_enum.clone
+
+      expect(original_enum).to be_static
+      expect(cloned_enum).to be_static
+
+      expect(original_enum.send(:static_value)).to eq(2)
+      expect(cloned_enum.send(:static_value)).to eq(2)
+
+      # The `instance_variable_get` method will raise a NameError if the instance variable
+      # doesn't exist. This expectation makes sure that the `@static_value` instance
+      # variable is `nil` regardless of the implementation of the `static_value` method.
+      expect(original_enum.instance_variable_get(:@static_value)).to eq(2)
+      expect(cloned_enum.instance_variable_get(:@static_value)).to eq(2)
+    end
+  end
+
+  describe "#dup" do
+    before do
+      MyUser = Struct.new(:status)
+    end
+
+    after do
+      Object.send(:remove_const, :MyUser)
+    end
+
+    it "duplicates the enum" do
+      original_enum = described_class.new(:status, %i[enabled])
+      dupped_enum = original_enum.dup
+
+      expect(dupped_enum.object_id).to_not eq(original_enum.object_id)
+    end
+
+    it "duplicates the enum's attributes", aggregate_failures: true do
+      object = MyUser.new(:active)
+      original_enum = described_class.new(:status, {active: 1, inactive: 2}, as: "User_Status")
+      dupped_enum = original_enum.dup
+
+      expect(dupped_enum.name).to eq(original_enum.name)
+      expect(dupped_enum.api_name).to eq(original_enum.api_name)
+      expect(dupped_enum.label).to eq(original_enum.label)
+
+      expect(dupped_enum.options).to eq(original_enum.options)
+      expect(dupped_enum.options.object_id).to_not eq(original_enum.options.object_id)
+      expect(dupped_enum.field_method.object_id).to_not eq(original_enum.field_method.object_id)
+
+      expect(dupped_enum.elements).to eq(original_enum.elements)
+      expect(dupped_enum.elements.object_id).to_not eq(original_enum.elements.object_id)
+
+      expect(dupped_enum.value_for(object)).to eq(original_enum.value_for(object))
+    end
+
+    it "removes the static value of the dupped enum", aggregate_failures: true do
+      original_enum = described_class.new(:status, {active: 1, inactive: 2})
+      original_enum.value = 2
+      dupped_enum = original_enum.dup
+
+      expect(original_enum).to be_static
+      expect(dupped_enum).to_not be_static
+
+      expect(original_enum.send(:static_value)).to eq(2)
+      expect(dupped_enum.send(:static_value)).to be_nil
+
+      # The `instance_variable_get` method will raise a NameError if the instance variable
+      # doesn't exist. This expectation makes sure that the `@static_value` instance
+      # variable is `nil` regardless of the implementation of the `static_value` method.
+      expect(original_enum.instance_variable_get(:@static_value)).to eq(2)
+      expect(dupped_enum.instance_variable_get(:@static_value)).to be_nil
+    end
+  end
+
   describe "#value=" do
     context "when the given value is in the #elements attribute" do
       it "does not raise an error", aggregate_failures: true do

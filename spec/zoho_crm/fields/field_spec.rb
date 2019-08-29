@@ -117,6 +117,112 @@ RSpec.describe ZohoCRM::Fields::Field do
     end
   end
 
+  describe "#clone" do
+    before do
+      MyUser = Struct.new(:first_name, :last_name, keyword_init: true)
+    end
+
+    after do
+      Object.send(:remove_const, :MyUser)
+    end
+
+    it "clones the field" do
+      original_field = described_class.new(:first_name)
+      cloned_field = original_field.clone
+
+      expect(cloned_field.object_id).to_not eq(original_field.object_id)
+    end
+
+    it "clones the field's attributes", aggregate_failures: true do
+      object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+      original_field = described_class.new(:full_name, as: "Full_Name", label: "Full Name (First Name + Last Name)") { |object|
+        "#{object.first_name} #{object.last_name}"
+      }
+      cloned_field = original_field.clone
+
+      expect(cloned_field.name).to eq(original_field.name)
+      expect(cloned_field.api_name).to eq(original_field.api_name)
+      expect(cloned_field.label).to eq(original_field.label)
+
+      expect(cloned_field.options.object_id).to_not eq(original_field.options.object_id)
+      expect(cloned_field.field_method.object_id).to_not eq(original_field.field_method.object_id)
+
+      expect(cloned_field.value_for(object)).to eq(original_field.value_for(object))
+    end
+
+    it "clones the static value of the cloned field", aggregate_failures: true do
+      original_field = described_class.new(:first_name)
+      original_field.value = "Sabine"
+      cloned_field = original_field.clone
+
+      expect(original_field).to be_static
+      expect(cloned_field).to be_static
+
+      expect(cloned_field.send(:static_value).object_id).to_not eq(original_field.send(:static_value).object_id)
+
+      expect(original_field.send(:static_value)).to eq("Sabine")
+      expect(cloned_field.send(:static_value)).to eq("Sabine")
+
+      # The `instance_variable_get` method will raise a NameError if the instance variable
+      # doesn't exist. This expectation makes sure that the `@static_value` instance
+      # variable is `nil` regardless of the implementation of the `static_value` method.
+      expect(original_field.instance_variable_get(:@static_value)).to eq("Sabine")
+      expect(cloned_field.instance_variable_get(:@static_value)).to eq("Sabine")
+    end
+  end
+
+  describe "#dup" do
+    before do
+      MyUser = Struct.new(:first_name, :last_name, keyword_init: true)
+    end
+
+    after do
+      Object.send(:remove_const, :MyUser)
+    end
+
+    it "duplicates the field" do
+      original_field = described_class.new(:first_name)
+      dupped_field = original_field.dup
+
+      expect(dupped_field.object_id).to_not eq(original_field.object_id)
+    end
+
+    it "duplicates the field's attributes", aggregate_failures: true do
+      object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+      original_field = described_class.new(:full_name, as: "Full_Name", label: "Full Name (First Name + Last Name)") { |object|
+        "#{object.first_name} #{object.last_name}"
+      }
+      dupped_field = original_field.dup
+
+      expect(dupped_field.name).to eq(original_field.name)
+      expect(dupped_field.api_name).to eq(original_field.api_name)
+      expect(dupped_field.label).to eq(original_field.label)
+
+      expect(dupped_field.options.object_id).to_not eq(original_field.options.object_id)
+      expect(dupped_field.field_method.object_id).to_not eq(original_field.field_method.object_id)
+
+      expect(dupped_field.value_for(object)).to eq(original_field.value_for(object))
+    end
+
+    it "removes the static value of the dupped field", aggregate_failures: true do
+      original_field = described_class.new(:first_name)
+      original_field.value = "Sabine"
+      dupped_field = original_field.dup
+
+      expect(original_field).to be_static
+      expect(dupped_field).to_not be_static
+
+      expect(original_field.send(:static_value)).to eq("Sabine")
+      expect(dupped_field.send(:static_value)).to be_nil
+
+      # The `instance_variable_get` method will raise a NameError if the instance variable
+      # doesn't exist. This expectation makes sure that the `@static_value` instance
+      # variable is `nil` regardless of the implementation of the `static_value` method.
+      expect(original_field.instance_variable_get(:@static_value)).to eq("Sabine")
+      expect(dupped_field.instance_variable_get(:@static_value)).to be_nil
+    end
+  end
+
   describe "#api_name=" do
     context "when a blank value is assigned" do
       subject(:field) { described_class.new(:name) }

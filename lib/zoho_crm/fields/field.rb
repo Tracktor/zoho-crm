@@ -32,6 +32,40 @@ module ZohoCRM
         self.label = @options.delete("label")
       end
 
+      # @param original_field [ZohoCRM::Fields::Field]
+      # @return [ZohoCRM::Fields::Field]
+      def initialize_clone(original_field)
+        super
+
+        %i[@name @field_method @label @api_name @inferred_api_name @options].each do |ivar|
+          original_ivar = original_field.instance_variable_get(ivar)
+
+          instance_variable_set(ivar, ZohoCRM::Utils::Copiable.deep_clone(original_ivar))
+        end
+
+        if original_field.instance_variable_defined?(:@static_value)
+          original_static_value = ZohoCRM::Utils::Copiable.deep_clone(original_field.instance_variable_get(:@static_value))
+
+          instance_variable_set(:@static_value, original_static_value)
+        else
+          instance_variable_set(:@static_value, nil)
+        end
+      end
+
+      # @param original_field [ZohoCRM::Fields::Field]
+      # @return [ZohoCRM::Fields::Field]
+      def initialize_dup(original_field)
+        super
+
+        %i[@name @field_method @label @api_name @inferred_api_name @options].each do |ivar|
+          original_ivar = original_field.instance_variable_get(ivar)
+
+          instance_variable_set(ivar, ZohoCRM::Utils::Copiable.deep_dup(original_ivar))
+        end
+
+        instance_variable_set(:@static_value, nil)
+      end
+
       def api_name=(value)
         string_value = value.to_s.strip
         @api_name = value && !string_value.empty? ? string_value : inferred_api_name

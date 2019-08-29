@@ -27,6 +27,26 @@ module ZohoCRM
       @hash = {}
     end
 
+    # @param original_field_set [ZohoCRM::FieldSet]
+    # @return [ZohoCRM::FieldSet]
+    def initialize_clone(original_field_set)
+      super
+
+      original_hash = original_field_set.instance_variable_get(:@hash)
+
+      instance_variable_set(:@hash, ZohoCRM::Utils::Copiable.deep_clone(original_hash))
+    end
+
+    # @param original_field_set [ZohoCRM::FieldSet]
+    # @return [ZohoCRM::FieldSet]
+    def initialize_dup(original_field_set)
+      super
+
+      original_hash = original_field_set.instance_variable_get(:@hash)
+
+      instance_variable_set(:@hash, ZohoCRM::Utils::Copiable.deep_dup(original_hash))
+    end
+
     # @param field [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
     #
     # @return [nil, ZohoCRM::Fields::Field]
