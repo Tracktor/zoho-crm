@@ -3,9 +3,14 @@
 module ZohoCRM
   class FieldSet
     class FieldNotFoundError < KeyError
+      # @return [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
       attr_reader :field_name
+
+      # @return [ZohoCRM::FieldSet]
       attr_reader :fields
 
+      # @param field_name [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
+      # @param fields [ZohoCRM::FieldSet]
       def initialize(field_name, fields:)
         @field_name = field_name
         @fields = fields
@@ -132,7 +137,7 @@ module ZohoCRM
       self
     end
 
-    # @param field [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
+    # @param other [Symbol, String, ZohoCRM::Fields::Field] field name or field instance
     def include?(other)
       key = key_for(other)
 
