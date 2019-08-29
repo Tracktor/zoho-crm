@@ -473,6 +473,16 @@ RSpec.describe ZohoCRM::Model do
             .to change { instance.field(:email).value_for(user) }
             .from("user@example.com").to("john@example.com")
         end
+
+        it "doesn't affect other instances of the model", aggregate_failures: true do
+          user = MyUser.new("user@example.com")
+          instance1 = MyZohoModel.new(user)
+          instance2 = MyZohoModel.new(user)
+          instance2.email = "john@example.com"
+
+          expect(instance1.field(:email).value_for(user)).to eq("user@example.com")
+          expect(instance2.field(:email).value_for(user)).to eq("john@example.com")
+        end
       end
     end
   end
