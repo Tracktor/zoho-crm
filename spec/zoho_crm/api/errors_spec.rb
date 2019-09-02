@@ -85,17 +85,34 @@ RSpec.describe ZohoCRM::API do
     end
 
     context "when no message is passed as argument" do
-      subject(:error) do
-        described_class.new(
-          error_code: "INVALID_DATA",
-          details: {},
-          status_code: 400,
-          response: spy
-        )
+      context "when the error details include a field name" do
+        let(:error) do
+          described_class.new(
+            error_code: "INVALID_DATA",
+            details: {"api_name" => "Account_Name"},
+            status_code: 202,
+            response: spy
+          )
+        end
+
+        it "generates an error message including the field name" do
+          expect(error.message).to eq("Zoho CRM API error -- code: \"INVALID_DATA\" - HTTP status code: 202 - Field API Name: \"Account_Name\"")
+        end
       end
 
-      it "generates a default error message" do
-        expect(error.message).to eq("Zoho CRM API error -- code: \"INVALID_DATA\" - HTTP status code: 400")
+      context "when the error details don't include a field name" do
+        let(:error) do
+          described_class.new(
+            error_code: "INVALID_DATA",
+            details: {},
+            status_code: 400,
+            response: spy
+          )
+        end
+
+        it "generates an error message" do
+          expect(error.message).to eq("Zoho CRM API error -- code: \"INVALID_DATA\" - HTTP status code: 400")
+        end
       end
     end
 

@@ -50,9 +50,19 @@ module ZohoCRM
         @status_code = status_code
         @response = response
 
-        message ||= "Zoho CRM API error -- code: #{error_code.inspect} - HTTP status code: #{status_code}"
+        super(message || build_message)
+      end
 
-        super(message)
+      private
+
+      def build_message
+        msg = "Zoho CRM API error -- code: #{error_code.inspect} - HTTP status code: #{status_code}"
+
+        if details.key?("api_name")
+          "#{msg} - Field API Name: #{details.fetch("api_name").inspect}"
+        else
+          msg
+        end
       end
     end
   end
