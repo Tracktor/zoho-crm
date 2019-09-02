@@ -79,7 +79,7 @@ RSpec.describe ZohoCRM::API do
         )
       end
 
-      it "generates a default error message" do
+      it "uses it as error message" do
         expect(error.message).to eq("Invalid data")
       end
     end
