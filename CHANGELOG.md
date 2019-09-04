@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.2.13](https://github.com/Tracktor/zoho-crm/tree/v0.2.13) (2019-09-04)
+-------------------------------------------------------------------------
+
+### Enhancements
+
+- Include field info in the generated message of `APIRequestError` errors.
+
 [v0.2.12](https://github.com/Tracktor/zoho-crm/tree/v0.2.12) (2019-08-23)
 -------------------------------------------------------------------------
 
