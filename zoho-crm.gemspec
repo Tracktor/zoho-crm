@@ -42,6 +42,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry", "~> 0.12"
   spec.add_development_dependency "pry-byebug", "~> 3.7.0"
   spec.add_development_dependency "yard", "~> 0.9.19"
+  spec.add_development_dependency "redcarpet", "~> 3.5.0"
+  spec.add_development_dependency "github-markup", "~> 3.0.4"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "standard", "~> 0.0"
 end
