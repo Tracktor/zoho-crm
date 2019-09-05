@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.3.2](https://github.com/Tracktor/zoho-crm/tree/v0.3.2) (2019-09-05)
+-------------------------------------------------------------------------
+
+### Enhancements
+
+- Allow to set default triggers for each `ZohoCRM::API::Client` instances.
+
 [v0.3.1](https://github.com/Tracktor/zoho-crm/tree/v0.3.1) (2019-09-02)
 -------------------------------------------------------------------------
 
