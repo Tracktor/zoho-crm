@@ -8,6 +8,25 @@ RSpec.describe ZohoCRM::API::Client do
     expect(described_class.superclass).to be(ZohoCRM::API::Connection)
   end
 
+  describe "#initialize" do
+    context "when a triggers parameter is given" do
+      it "sets the default triggers to the value of the parameter" do
+        triggers = %w[blueprint]
+        client = described_class.new(spy, triggers: triggers)
+
+        expect(client.triggers).to match_array(triggers)
+      end
+    end
+
+    context "when no triggers parameter is given" do
+      it "sets the default triggers" do
+        client = described_class.new(spy)
+
+        expect(client.triggers).to match_array([])
+      end
+    end
+  end
+
   describe "#show" do
     subject(:client) { described_class.new(spy) }
 
@@ -54,14 +73,16 @@ RSpec.describe ZohoCRM::API::Client do
   end
 
   describe "#create" do
-    subject(:client) { described_class.new(spy) }
-
     it "requires a record ID and a module name", aggregate_failures: true do
+      client = described_class.new(spy)
+
       expect { client.create }.to raise_error(ArgumentError, "wrong number of arguments (given 0, expected 1; required keyword: module_name)")
       expect { client.create(42, {}) }.to raise_error(ArgumentError, "missing keyword: module_name")
     end
 
     it "performs a POST request" do
+      client = described_class.new(spy)
+
       allow(client).to receive(:post).and_return(spy(parse: {"data" => [{}]}))
 
       client.create({}, module_name: "Contacts")
@@ -70,6 +91,8 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "can't create multiple records at the same time", aggregate_failures: true do
+      client = described_class.new(spy)
+
       allow(client).to receive(:post)
 
       expect { client.create([{name: "John"}, {name: "Jane"}], module_name: "Contacts") }
@@ -79,6 +102,8 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "accepts a list of workflows to trigger" do
+      client = described_class.new(spy, triggers: %w[workflow])
+
       allow(client).to receive(:post).and_return(spy)
 
       client.create({}, module_name: "Contacts", trigger: %w[approval blueprint])
@@ -86,15 +111,19 @@ RSpec.describe ZohoCRM::API::Client do
       expect(client).to have_received(:post).with("Contacts", body: {data: [{}], trigger: %w[approval blueprint]})
     end
 
-    it "doesn't trigger any workflow by default" do
+    it "uses the triggers attribute by default" do
+      client = described_class.new(spy, triggers: %w[blueprint])
+
       allow(client).to receive(:post).and_return(spy)
 
       client.create({}, module_name: "Contacts")
 
-      expect(client).to have_received(:post).with("Contacts", body: {data: [{}], trigger: []})
+      expect(client).to have_received(:post).with("Contacts", body: {data: [{}], trigger: client.triggers})
     end
 
     context "when the request succeeds" do
+      subject(:client) { described_class.new(spy) }
+
       let(:record_id) { "12345678987654321" }
 
       before do
@@ -109,6 +138,8 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     context "when the request fails" do
+      subject(:client) { described_class.new(spy) }
+
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
@@ -128,15 +159,17 @@ RSpec.describe ZohoCRM::API::Client do
   end
 
   describe "#update" do
-    subject(:client) { described_class.new(spy) }
-
     it "requires a record ID, a body and a module name", aggregate_failures: true do
+      client = described_class.new(spy)
+
       expect { client.update }.to raise_error(ArgumentError, "wrong number of arguments (given 0, expected 2; required keyword: module_name)")
       expect { client.update(42) }.to raise_error(ArgumentError, "wrong number of arguments (given 1, expected 2; required keyword: module_name)")
       expect { client.update(42, {}) }.to raise_error(ArgumentError, "missing keyword: module_name")
     end
 
     it "performs a PUT request" do
+      client = described_class.new(spy)
+
       allow(client).to receive(:put).and_return(spy)
 
       client.update(42, {}, module_name: "Contacts")
@@ -145,22 +178,28 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "accepts a list of workflows to trigger" do
+      client = described_class.new(spy, triggers: %w[blueprint])
+
       allow(client).to receive(:put).and_return(spy)
 
-      client.update(42, {}, module_name: "Contacts", trigger: %w[blueprint])
+      client.update(42, {}, module_name: "Contacts", trigger: %w[approval])
 
-      expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}], trigger: %w[blueprint]})
+      expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}], trigger: %w[approval]})
     end
 
-    it "doesn't trigger any workflow by default" do
+    it "uses the triggers attribute by default" do
+      client = described_class.new(spy, triggers: %w[blueprint])
+
       allow(client).to receive(:put).and_return(spy)
 
       client.update(42, {}, module_name: "Contacts")
 
-      expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}], trigger: []})
+      expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}], trigger: client.triggers})
     end
 
     context "when the request succeeds" do
+      subject(:client) { described_class.new(spy) }
+
       it "returns true" do
         fake_response = spy("Response", parse: {"data" => [{"status" => "success"}]})
 
@@ -171,6 +210,8 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     context "when the request fails" do
+      subject(:client) { described_class.new(spy) }
+
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
@@ -190,14 +231,16 @@ RSpec.describe ZohoCRM::API::Client do
   end
 
   describe "#upsert" do
-    subject(:client) { described_class.new(spy) }
-
     it "requires a record ID and a module name", aggregate_failures: true do
+      client = described_class.new(spy)
+
       expect { client.upsert }.to raise_error(ArgumentError, "wrong number of arguments (given 0, expected 1; required keyword: module_name)")
       expect { client.upsert(42) }.to raise_error(ArgumentError, "missing keyword: module_name")
     end
 
     it "performs a POST request" do
+      client = described_class.new(spy)
+
       allow(client).to receive(:post).and_return(spy)
 
       client.upsert([{}], module_name: "Contacts")
@@ -206,6 +249,8 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "can't upsert multiple records at the same time" do
+      client = described_class.new(spy)
+
       allow(client).to receive(:post)
 
       expect { client.upsert([{name: "John"}, {name: "Jane"}], module_name: "Contacts") }
@@ -215,6 +260,8 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "accepts a list of fields to check for existing records" do
+      client = described_class.new(spy)
+
       allow(client).to receive(:post).and_return(spy)
 
       client.upsert([{}], module_name: "Contacts", duplicate_check_fields: %w[email last_name])
@@ -227,6 +274,8 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     it "accepts a list of workflows to trigger" do
+      client = described_class.new(spy, triggers: %w[workflow])
+
       allow(client).to receive(:post).and_return(spy)
 
       client.upsert([{}], module_name: "Contacts", trigger: %w[blueprint])
@@ -238,19 +287,23 @@ RSpec.describe ZohoCRM::API::Client do
       })
     end
 
-    it "doesn't trigger any workflow by default" do
+    it "uses the triggers attribute by default" do
+      client = described_class.new(spy, triggers: %w[workflow])
+
       allow(client).to receive(:post).and_return(spy)
 
-      client.upsert([{}], module_name: "Contacts", trigger: [])
+      client.upsert([{}], module_name: "Contacts")
 
       expect(client).to have_received(:post).with("Contacts/upsert", body: {
         data: [{}],
         duplicate_check_fields: [],
-        trigger: [],
+        trigger: client.triggers,
       })
     end
 
     context "when the request succeeds" do
+      subject(:client) { described_class.new(spy) }
+
       context "when a new record was created" do
         let(:record_id) { "12345678987654321" }
 
@@ -291,6 +344,8 @@ RSpec.describe ZohoCRM::API::Client do
     end
 
     context "when the request fails" do
+      subject(:client) { described_class.new(spy) }
+
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
