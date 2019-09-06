@@ -121,6 +121,21 @@ RSpec.describe ZohoCRM::API::Client do
       expect(client).to have_received(:post).with("Contacts", body: {data: [{}], trigger: client.triggers})
     end
 
+    context "when an invalid trigger is passed" do
+      it "shows a warning" do
+        triggers = %w[bomb]
+        warning_message = "warning: invalid triggers found: #{triggers.inspect}\n"
+        client = described_class.new(spy)
+
+        allow(Warning).to receive(:warn)
+        allow(client).to receive(:post).and_return(spy)
+
+        client.create({}, module_name: "Contacts", trigger: triggers)
+
+        expect(Warning).to have_received(:warn).with(warning_message)
+      end
+    end
+
     context "when the request succeeds" do
       subject(:client) { described_class.new(spy) }
 
@@ -195,6 +210,21 @@ RSpec.describe ZohoCRM::API::Client do
       client.update(42, {}, module_name: "Contacts")
 
       expect(client).to have_received(:put).with("Contacts/42", body: {data: [{}], trigger: client.triggers})
+    end
+
+    context "when an invalid trigger is passed" do
+      it "shows a warning" do
+        triggers = %w[bomb]
+        warning_message = "warning: invalid triggers found: #{triggers.inspect}\n"
+        client = described_class.new(spy)
+
+        allow(Warning).to receive(:warn)
+        allow(client).to receive(:put).and_return(spy)
+
+        client.update(42, {}, module_name: "Contacts", trigger: triggers)
+
+        expect(Warning).to have_received(:warn).with(warning_message)
+      end
     end
 
     context "when the request succeeds" do
@@ -299,6 +329,21 @@ RSpec.describe ZohoCRM::API::Client do
         duplicate_check_fields: [],
         trigger: client.triggers,
       })
+    end
+
+    context "when an invalid trigger is passed" do
+      it "shows a warning" do
+        triggers = %w[bomb]
+        warning_message = "warning: invalid triggers found: #{triggers.inspect}\n"
+        client = described_class.new(spy)
+
+        allow(Warning).to receive(:warn)
+        allow(client).to receive(:post).and_return(spy)
+
+        client.upsert([{}], module_name: "Contacts", trigger: triggers)
+
+        expect(Warning).to have_received(:warn).with(warning_message)
+      end
     end
 
     context "when the request succeeds" do

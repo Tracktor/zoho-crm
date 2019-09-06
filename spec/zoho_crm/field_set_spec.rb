@@ -187,6 +187,20 @@ RSpec.describe ZohoCRM::FieldSet do
       expect(field_set.fetch(:email) { field }).to eq(field)
     end
 
+    context "when a block and a default value are given" do
+      it "shows a warning" do
+        warning_message = "warning: block supersedes default value argument\n"
+        field_set = described_class.new
+        field = ZohoCRM::Fields::Field.new(:email)
+
+        allow(Warning).to receive(:warn)
+
+        field_set.fetch(:email, "user@example.com") { field }
+
+        expect(Warning).to have_received(:warn).with(warning_message)
+      end
+    end
+
     it "raises an error if the key is nil", aggregate_failures: true do
       field_set = described_class.new
 
