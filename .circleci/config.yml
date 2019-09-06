@@ -1,31 +1,62 @@
-version: 2
+version: 2.1
 
-jobs:
-  build:
-    docker:
-      - image: circleci/ruby:2.6
-        environment:
-          BUNDLE_JOBS: 3
-          BUNDLE_RETRY: 3
-          BUNDLE_PATH: vendor/bundle
+commands:
+  dependencies:
+    description: "Install dependencies"
     steps:
-      - checkout
-
-      # Install bundler 2.0 if needed
       - run:
-          name: "Bundler 2"
+          name: "Install Bundler 2 if necessary"
           command: bundle --version | grep -q "version 2" || gem install bundler
 
-      - run:
-          name: "Bundle Install"
-          command: bundle install
+      - restore_cache:
+          keys:
+            - gem-cache-{{ .Branch }}-{{ checksum "zoho-crm.gemspec" }}
+            # fallback to using the latest cache if no exact match is found
+            - gem-cache-
 
       - run:
-          name: "Run RSpec test suite"
-          command: bundle exec rspec --format progress
-          when: always
+          name: "Run bundle install"
+          command: bundle install --jobs=4 --retry=3 --path vendor/bundle
 
-      - run:
-          name: "Lint with the Standard Ruby style guide"
-          command: bundle exec standardrb --no-fix --format progress
-          when: always
+      - save_cache:
+          key:
+            gem-cache-{{ .Branch }}-{{ checksum "zoho-crm.gemspec" }}
+          paths:
+            - vendor/bundle
+
+  rspec:
+    description: "Run the RSpec test suite"
+    steps:
+      - run: bundle exec rspec --format progress
+
+  standard:
+    description: "Lint the code with the Standard Ruby style guide"
+    steps:
+      - run: bundle exec standardrb --no-fix --format progress
+
+jobs:
+  "ruby-2_6":
+    docker:
+      - image: circleci/ruby:2.6
+
+    steps:
+      - checkout
+      - dependencies
+      - rspec
+      - standard
+
+  "ruby-latest":
+    docker:
+      - image: circleci/ruby:latest
+
+    steps:
+      - checkout
+      - dependencies
+      - rspec
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - "ruby-2_6"
+      - "ruby-latest"
