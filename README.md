@@ -6,7 +6,7 @@ A gem to make working with Zoho CRM less painful.
 Requirements
 ------------
 
-This gem requires Ruby version 2.5 or greater.
+This gem requires Ruby version 2.6 or greater.
 
 Installation
 ------------
