@@ -366,14 +366,104 @@ RSpec.describe ZohoCRM::Fields::Field do
         end
 
         it "executes the Proc in the context of the object", aggregate_failures: true do
+          object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+
           field1 = described_class.new(:name) { |obj| "#{obj.last_name}, #{obj.first_name} #{obj.last_name}" }
           field2 = described_class.new(:name) { "#{first_name} ! #{first_name} ! #{first_name} #{last_name}" }
           field1.value = nil
           field2.value = nil
-          object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+
+          allow(object).to receive(:instance_exec).exactly(2).times.and_call_original
 
           expect(field1.value_for(object)).to eq("#{object.last_name}, #{object.first_name} #{object.last_name}")
           expect(field2.value_for(object)).to eq("#{object.first_name} ! #{object.first_name} ! #{object.first_name} #{object.last_name}")
+
+          expect(object).to have_received(:instance_exec).with(object)
+          expect(object).to have_received(:instance_exec).with(no_args)
+        end
+
+        context "when the Proc expects no arguments" do
+          let(:field) do
+            f = described_class.new(:name) { nil }
+            f.value = nil
+            f
+          end
+
+          it "executes the Proc in the context of the object" do
+            object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+
+            allow(object).to receive(:instance_exec).once.and_call_original
+
+            _ = field.value_for(object)
+
+            expect(object).to have_received(:instance_exec).with(no_args)
+          end
+        end
+
+        context "when the Proc expects one argument" do
+          let(:field) do
+            f = described_class.new(:name) { |o| o }
+            f.value = nil
+            f
+          end
+
+          it "executes the Proc in the context of the object" do
+            object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+
+            allow(object).to receive(:instance_exec).once.and_call_original
+
+            _ = field.value_for(object)
+
+            expect(object).to have_received(:instance_exec).with(object)
+          end
+        end
+
+        context "when the Proc expects two arguments" do
+          let(:field) do
+            f = described_class.new(:name) { |o, f| [o, f] }
+            f.value = nil
+            f
+          end
+
+          it "executes the Proc in the context of the object" do
+            object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+
+            allow(object).to receive(:instance_exec).once.and_call_original
+
+            _ = field.value_for(object)
+
+            expect(object).to have_received(:instance_exec).with(object, field)
+          end
+        end
+
+        context "when the Proc expects more than two arguments" do
+          let(:field) do
+            f = described_class.new(:name) { |o, f, x| [o, f, x] }
+            f.value = nil
+            f
+          end
+
+          it "executes the Proc in the context of the object" do
+            object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+
+            allow(Warning).to receive(:warn)
+            allow(object).to receive(:instance_exec).once.and_call_original
+
+            _ = field.value_for(object)
+
+            expect(object).to have_received(:instance_exec).with(object, field, nil)
+          end
+
+          it "shows a warning" do
+            object = MyUser.new(first_name: "Sabine", last_name: "Jelahaie")
+            warning_message = "warning: too many arguments given to block (expected 0...2, got 3)\n"
+
+            allow(Warning).to receive(:warn)
+
+            _ = field.value_for(object)
+
+            expect(Warning).to have_received(:warn).with(warning_message)
+          end
         end
       end
     end

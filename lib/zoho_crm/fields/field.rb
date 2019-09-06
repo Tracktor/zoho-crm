@@ -91,10 +91,22 @@ module ZohoCRM
         when Symbol, String
           object.public_send(field_method)
         when Proc
-          if field_method.arity.positive?
-            object.instance_exec(object, &field_method)
-          else
+          case field_method.arity
+          when 0
             object.instance_exec(&field_method)
+          when 1
+            object.instance_exec(object, &field_method)
+          when 2
+            object.instance_exec(object, clone.freeze, &field_method)
+          else
+            warn("warning: too many arguments given to block (expected 0...2, got #{field_method.arity.inspect})")
+
+            object.instance_exec(
+              object,
+              clone.freeze,
+              *Array.new(field_method.arity - 2),
+              &field_method
+            )
           end
         else
           # Note: This should not happen, but anything is possible in Ruby
