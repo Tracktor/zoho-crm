@@ -198,7 +198,7 @@ module ZohoCRM
 
       def normalize_triggers(value)
         triggers = Array(value).map(&:to_s)
-        invalid_triggers = triggers - TRIGGERS
+        invalid_triggers = triggers.difference(TRIGGERS)
 
         unless invalid_triggers.empty?
           warn("warning: invalid triggers found: #{invalid_triggers.inspect}")

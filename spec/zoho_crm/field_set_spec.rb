@@ -35,6 +35,15 @@ RSpec.describe ZohoCRM::FieldSet do
 
         expect(error.message).to match(/Field not found: #{field_name}/)
       end
+
+      it "sets the receiver and the key attributes", aggregate_failures: true do
+        field_name = :email
+        fields = %i[name]
+        error = described_class.new(field_name, fields: fields)
+
+        expect(error.receiver).to eq(fields)
+        expect(error.key).to eq(field_name)
+      end
     end
   end
 

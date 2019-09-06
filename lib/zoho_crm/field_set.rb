@@ -17,12 +17,7 @@ module ZohoCRM
 
         message = "Field not found: #{@field_name}"
 
-        # In Ruby 2.6+ KeyError#initialize take three arguments:
-        #
-        #   super(message, receiver: @fields, key: @field_name)
-        #
-        # Prior versions only accepted the message as argument.
-        super(message)
+        super(message, receiver: @fields, key: @field_name)
       end
     end
 
