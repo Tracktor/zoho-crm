@@ -51,36 +51,93 @@ RSpec.describe ZohoCRM::API do
       expect(described_class.superclass).to be(ZohoCRM::API::Error)
     end
 
-    it "requires an error code and a status code as attributes", aggregate_failures: true do
-      expect { described_class.new }
-        .to raise_error(ArgumentError, "missing keywords: error_code, details, status_code, response")
+    describe ".build" do
+      it "requires an error code and a status code as attributes", aggregate_failures: true do
+        expect { described_class.build }
+          .to raise_error(ArgumentError, "missing keywords: error_code, details, status_code, response")
 
-      expect { described_class.new(details: {}, status_code: 202, response: spy) }
-        .to raise_error(ArgumentError, "missing keyword: error_code")
+        expect { described_class.build(details: {}, status_code: 202, response: spy) }
+          .to raise_error(ArgumentError, "missing keyword: error_code")
 
-      expect { described_class.new(error_code: "INVALID_DATA", status_code: 202, response: spy) }
-        .to raise_error(ArgumentError, "missing keyword: details")
+        expect { described_class.build(error_code: "INVALID_DATA", status_code: 202, response: spy) }
+          .to raise_error(ArgumentError, "missing keyword: details")
 
-      expect { described_class.new(error_code: "INVALID_DATA", details: {}, response: spy) }
-        .to raise_error(ArgumentError, "missing keyword: status_code")
+        expect { described_class.build(error_code: "INVALID_DATA", details: {}, response: spy) }
+          .to raise_error(ArgumentError, "missing keyword: status_code")
 
-      expect { described_class.new(error_code: "INVALID_DATA", details: {}, status_code: 202) }
-        .to raise_error(ArgumentError, "missing keyword: response")
-    end
-
-    context "when a message is passed as argument" do
-      subject(:error) do
-        described_class.new(
-          "Invalid data",
-          error_code: "INVALID_DATA",
-          details: {},
-          status_code: 400,
-          response: spy
-        )
+        expect { described_class.build(error_code: "INVALID_DATA", details: {}, status_code: 202) }
+          .to raise_error(ArgumentError, "missing keyword: response")
       end
 
-      it "uses it as error message" do
-        expect(error.message).to eq("Invalid data")
+      it "returns an instance of #{described_class}" do
+        error = described_class.build(error_code: "ERROR", details: {}, status_code: 400, response: spy)
+
+        expect(error).to be_an_instance_of(described_class)
+      end
+
+      context "when the error code is \"INVALID_DATA\"" do
+        context "when the `details` Hash doesn't contain the \"api_name\" key" do
+          it "raises an error" do
+            expect { described_class.build(error_code: "INVALID_DATA", details: {}, status_code: 202, response: spy) }
+              .to raise_error(KeyError)
+          end
+        end
+
+        it "returns an instance of ZohoCRM::API::InvalidDataError" do
+          error = described_class.build(error_code: "INVALID_DATA", details: {"api_name" => "Id"}, status_code: 202, response: spy)
+
+          expect(error).to be_an_instance_of(ZohoCRM::API::InvalidDataError)
+        end
+      end
+
+      context "when the error code is \"DUPLICATE_DATA\"" do
+        context "when the `details` Hash doesn't contain the \"api_name\" key" do
+          it "raises an error" do
+            expect { described_class.build(error_code: "DUPLICATE_DATA", details: {}, status_code: 202, response: spy) }
+              .to raise_error(KeyError)
+          end
+        end
+
+        it "returns an instance of ZohoCRM::API::DuplicateDataError" do
+          error = described_class.build(error_code: "DUPLICATE_DATA", details: {"api_name" => "Id"}, status_code: 202, response: spy)
+
+          expect(error).to be_an_instance_of(ZohoCRM::API::DuplicateDataError)
+        end
+      end
+    end
+
+    describe "#initialize" do
+      it "requires an error code and a status code as attributes", aggregate_failures: true do
+        expect { described_class.new }
+          .to raise_error(ArgumentError, "missing keywords: error_code, details, status_code, response")
+
+        expect { described_class.new(details: {}, status_code: 202, response: spy) }
+          .to raise_error(ArgumentError, "missing keyword: error_code")
+
+        expect { described_class.new(error_code: "INVALID_DATA", status_code: 202, response: spy) }
+          .to raise_error(ArgumentError, "missing keyword: details")
+
+        expect { described_class.new(error_code: "INVALID_DATA", details: {}, response: spy) }
+          .to raise_error(ArgumentError, "missing keyword: status_code")
+
+        expect { described_class.new(error_code: "INVALID_DATA", details: {}, status_code: 202) }
+          .to raise_error(ArgumentError, "missing keyword: response")
+      end
+
+      context "when a message is passed as argument" do
+        subject(:error) do
+          described_class.new(
+            "Invalid data",
+            error_code: "INVALID_DATA",
+            details: {},
+            status_code: 400,
+            response: spy
+          )
+        end
+
+        it "uses it as error message" do
+          expect(error.message).to eq("Invalid data")
+        end
       end
     end
 
@@ -130,6 +187,76 @@ RSpec.describe ZohoCRM::API do
 
     it "has a `response' readonly attribute" do
       expect(described_class.new(error_code: "", details: {}, status_code: 0, response: spy)).to have_attr_reader(:response)
+    end
+  end
+
+  describe ZohoCRM::API::InvalidDataError do
+    it "inherits from ZohoCRM::API::APIRequestError" do
+      expect(described_class.superclass).to be(ZohoCRM::API::APIRequestError)
+    end
+
+    context "when the error code is not \"INVALID_DATA\"" do
+      it "raises an error" do
+        expect { described_class.build(error_code: "ERROR", details: {"api_name" => "Id"}, status_code: 202, response: spy) }
+          .to raise_error(ZohoCRM::API::Error, "expected error_code to be \"INVALID_DATA\" but got \"ERROR\"")
+      end
+    end
+
+    context "when the `details` Hash doesn't contain the \"api_name\" key" do
+      it "raises an error" do
+        expect { described_class.build(error_code: "INVALID_DATA", details: {}, status_code: 202, response: spy) }
+          .to raise_error(KeyError)
+      end
+    end
+
+    context "when no message is passed as argument" do
+      let(:error) do
+        described_class.new(
+          error_code: "INVALID_DATA",
+          details: {"api_name" => "Account_Name"},
+          status_code: 202,
+          response: spy
+        )
+      end
+
+      it "generates an error message" do
+        expect(error.message).to eq("Invalid data for field: \"Account_Name\"")
+      end
+    end
+  end
+
+  describe ZohoCRM::API::DuplicateDataError do
+    it "inherits from ZohoCRM::API::APIRequestError" do
+      expect(described_class.superclass).to be(ZohoCRM::API::APIRequestError)
+    end
+
+    context "when the error code is not \"DUPLICATE_DATA\"" do
+      it "raises an error" do
+        expect { described_class.build(error_code: "ERROR", details: {"api_name" => "Id"}, status_code: 202, response: spy) }
+          .to raise_error(ZohoCRM::API::Error, "expected error_code to be \"DUPLICATE_DATA\" but got \"ERROR\"")
+      end
+    end
+
+    context "when the `details` Hash doesn't contain the \"api_name\" key" do
+      it "raises an error" do
+        expect { described_class.build(error_code: "DUPLICATE_DATA", details: {}, status_code: 202, response: spy) }
+          .to raise_error(KeyError)
+      end
+    end
+
+    context "when no message is passed as argument" do
+      let(:error) do
+        described_class.new(
+          error_code: "DUPLICATE_DATA",
+          details: {"api_name" => "Account_Name"},
+          status_code: 202,
+          response: spy
+        )
+      end
+
+      it "generates an error message" do
+        expect(error.message).to eq("Duplicate data for field: \"Account_Name\"")
+      end
     end
   end
 end
