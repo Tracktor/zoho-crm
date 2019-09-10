@@ -56,16 +56,16 @@ RSpec.describe ZohoCRM::API::Client do
     context "when the request fails" do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
-          status: spy(code: 202),
-          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+          status: spy(code: 404),
+          parse: {"data" => [{"code" => "NOT_FOUND", "details" => {}, "status" => "error"}]},
         })
 
         allow(client).to receive(:get).and_return(fake_response)
 
         expect { client.show("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
-          expect(error.error_code).to eq("INVALID_DATA")
-          expect(error.details).to eq({"api_name" => "First_Name"})
-          expect(error.status_code).to eq(202)
+          expect(error.error_code).to eq("NOT_FOUND")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(404)
           expect(error.response).to eq(fake_response)
         end
       end
@@ -158,13 +158,53 @@ RSpec.describe ZohoCRM::API::Client do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
-          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+          parse: {"data" => [{"code" => "ERROR", "details" => {}, "status" => "error"}]},
         })
 
         allow(client).to receive(:post).and_return(fake_response)
 
         expect { client.create({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("ERROR")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"INVALID_DATA\" error_code" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:post).and_return(fake_response)
+
+        expect { client.create({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"DUPLICATE_DATA\" error_code" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "DUPLICATE_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:post).and_return(fake_response)
+
+        expect { client.create({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::DuplicateDataError) do |error|
+          expect(error.error_code).to eq("DUPLICATE_DATA")
           expect(error.details).to eq({"api_name" => "First_Name"})
           expect(error.status_code).to eq(202)
           expect(error.response).to eq(fake_response)
@@ -245,13 +285,53 @@ RSpec.describe ZohoCRM::API::Client do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
-          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+          parse: {"data" => [{"code" => "ERROR", "details" => {}, "status" => "error"}]},
         })
 
         allow(client).to receive(:put).and_return(fake_response)
 
         expect { client.update("42", {}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("ERROR")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"INVALID_DATA\" error_code" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:put).and_return(fake_response)
+
+        expect { client.update("42", {}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"DUPLICATE_DATA\" error_code" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "DUPLICATE_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:put).and_return(fake_response)
+
+        expect { client.update("42", {}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::DuplicateDataError) do |error|
+          expect(error.error_code).to eq("DUPLICATE_DATA")
           expect(error.details).to eq({"api_name" => "First_Name"})
           expect(error.status_code).to eq(202)
           expect(error.response).to eq(fake_response)
@@ -394,13 +474,53 @@ RSpec.describe ZohoCRM::API::Client do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
-          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+          parse: {"data" => [{"code" => "ERROR", "details" => {}, "status" => "error"}]},
         })
 
         allow(client).to receive(:post).and_return(fake_response)
 
         expect { client.upsert({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("ERROR")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"INVALID_DATA\" error_code" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:post).and_return(fake_response)
+
+        expect { client.upsert({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"DUPLICATE_DATA\" error_code" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "DUPLICATE_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:post).and_return(fake_response)
+
+        expect { client.upsert({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::DuplicateDataError) do |error|
+          expect(error.error_code).to eq("DUPLICATE_DATA")
           expect(error.details).to eq({"api_name" => "First_Name"})
           expect(error.status_code).to eq(202)
           expect(error.response).to eq(fake_response)
@@ -436,14 +556,50 @@ RSpec.describe ZohoCRM::API::Client do
     context "when the request fails" do
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
+          status: spy(code: 400),
+          parse: {"data" => [{"code" => "ERROR", "details" => {}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:delete).and_return(fake_response)
+
+        expect { client.destroy("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+          expect(error.error_code).to eq("ERROR")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(400)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"INVALID_DATA\" error_code" do
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
           status: spy(code: 202),
           parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
         })
 
         allow(client).to receive(:delete).and_return(fake_response)
 
-        expect { client.destroy("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::APIRequestError) do |error|
+        expect { client.destroy("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.details).to eq({"api_name" => "First_Name"})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"DUPLICATE_DATA\" error_code" do
+      it "raises an error", aggregate_failures: true do
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "DUPLICATE_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:delete).and_return(fake_response)
+
+        expect { client.destroy("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::DuplicateDataError) do |error|
+          expect(error.error_code).to eq("DUPLICATE_DATA")
           expect(error.details).to eq({"api_name" => "First_Name"})
           expect(error.status_code).to eq(202)
           expect(error.response).to eq(fake_response)
