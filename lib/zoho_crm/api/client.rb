@@ -42,7 +42,7 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(
+          raise ZohoCRM::API::APIRequestError.build(
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,
@@ -78,7 +78,7 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(
+          raise ZohoCRM::API::APIRequestError.build(
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,
@@ -111,7 +111,7 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(
+          raise ZohoCRM::API::APIRequestError.build(
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,
@@ -151,7 +151,7 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(
+          raise ZohoCRM::API::APIRequestError.build(
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,
@@ -179,7 +179,7 @@ module ZohoCRM
         data = data[0] || {}
 
         if data["status"] == "error"
-          raise ZohoCRM::API::APIRequestError.new(
+          raise ZohoCRM::API::APIRequestError.build(
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,
