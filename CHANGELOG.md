@@ -4,6 +4,15 @@ Changelog
 Unreleased
 ----------
 
+[v0.4.1](https://github.com/Tracktor/zoho-crm/tree/v0.4.1) (2019-09-10)
+-------------------------------------------------------------------------
+
+### Features
+
+- Add specicialized versions of the `ZohoCRM::API::APIRequestError` classes:
+  - `ZohoCRM::API::InvalidDataError` for errors with a `"INVALID_DATA"` error code
+  - `ZohoCRM::API::DuplicateDataError` for errors with a `"DUPLICATE_DATA"` error code
+
 [v0.4.0](https://github.com/Tracktor/zoho-crm/tree/v0.4.0) (2019-09-06)
 -------------------------------------------------------------------------
 
