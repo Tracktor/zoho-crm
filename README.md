@@ -157,6 +157,22 @@ The documentation files will be generated under the `doc/` directory. You can br
 
 [YARD]: https://yardoc.org/
 
+### Releasing a new version
+
+To release a new version of the gem, follow these steps:
+
+1. Bump the version number in [`lib/zoho_crm/version.rb`](./lib/zoho_crm/version.rb)
+2. Update the [Changelog](./CHANGELOG.md). Make sure the link to the release on GitHub contains the correct version even though it doesn't exist yet.
+3. Commit the changes with the following commit template:
+   ```
+   Release version x.x.x
+   ```
+4. Push the new commit on GitHub
+5. Create [a new release](https://github.com/Tracktor/zoho-crm/releases/new) on Github:
+   1. The name of the new tag should have the following format: `vx.x.x`
+   2. The name of the release should be the same as the tag
+   3. The description of the release should be the content of the last section of the [Changelog](./CHANGELOG.md).
+
 Contributing
 ------------
 
