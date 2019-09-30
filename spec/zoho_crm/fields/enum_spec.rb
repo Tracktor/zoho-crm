@@ -242,10 +242,9 @@ RSpec.describe ZohoCRM::Fields::Enum do
     context "when the given value is not in the #elements attribute" do
       it "raises an error" do
         field = described_class.new(:status, %i[active inactive])
+        error_message_pattern = /Invalid value :deleted for enum: #{Regexp.escape(field.human_readable_elements)}/
 
-        expect { field.value = :deleted }
-          .to raise_error(described_class::InvalidValueError,
-                          /Invalid value :deleted for enum: #{Regexp.escape(field.human_readable_elements)}/)
+        expect { field.value = :deleted }.to raise_error(described_class::InvalidValueError, error_message_pattern)
       end
 
       it "doesn't set the static value" do
