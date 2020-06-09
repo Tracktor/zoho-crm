@@ -10,3 +10,6 @@
 
 # rspec failure tracking
 .rspec_status
+
+# Ignore location to install gems
+/.vendor
