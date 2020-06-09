@@ -80,13 +80,21 @@ module ZohoCRM
       end
 
       def element?(value)
-        elements.key?(value.to_s) || elements.value?(value)
+        if value.kind_of?(Array)
+          (elements.keys & value).count == value.count || (elements.values & value).count == value.count
+        else
+          elements.key?(value.to_s) || elements.value?(value)
+        end
       end
 
       def element(value)
         return unless element?(value)
-
-        elements.fetch(value.to_s, value)
+        
+        if value.kind_of?(Array)
+          elements.select{ |key| value.include? key }.values
+        else
+          elements.fetch(value.to_s, value)
+        end
       end
 
       # Returns a string containing a human-readable representation of the enum's elements.
