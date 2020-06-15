@@ -80,7 +80,7 @@ module ZohoCRM
       end
 
       def element?(value)
-        if value.kind_of?(Array)
+        if value.is_a?(Array)
           (elements.keys & value).count == value.count || (elements.values & value).count == value.count
         else
           elements.key?(value.to_s) || elements.value?(value)
@@ -89,9 +89,9 @@ module ZohoCRM
 
       def element(value)
         return unless element?(value)
-        
-        if value.kind_of?(Array)
-          elements.select{ |key| value.include? key }.values
+
+        if value.is_a?(Array)
+          elements.select { |key| value.include? key }.values
         else
           elements.fetch(value.to_s, value)
         end
