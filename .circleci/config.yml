@@ -43,7 +43,6 @@ jobs:
       - checkout
       - dependencies
       - rspec
-      - standard
 
   "ruby-latest":
     docker:
@@ -59,4 +58,3 @@ workflows:
   build:
     jobs:
       - "ruby-2_6"
-      - "ruby-latest"
