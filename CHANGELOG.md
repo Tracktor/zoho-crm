@@ -4,6 +4,13 @@ Changelog
 Unreleased
 ----------
 
+[v0.4.2](https://github.com/Tracktor/zoho-crm/tree/v0.4.2) (2020-06-15)
+-------------------------------------------------------------------------
+
+### Features
+
+- Manage array value in enum field `lib/zoho_crm/fields/enum.rb`
+
 [v0.4.1](https://github.com/Tracktor/zoho-crm/tree/v0.4.1) (2019-09-10)
 -------------------------------------------------------------------------
 
