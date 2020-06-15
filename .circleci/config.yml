@@ -58,4 +58,3 @@ workflows:
   build:
     jobs:
       - "ruby-2_6"
-      - "ruby-latest"
