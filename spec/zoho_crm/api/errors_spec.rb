@@ -78,8 +78,9 @@ RSpec.describe ZohoCRM::API do
       context "when the error code is \"INVALID_DATA\"" do
         context "when the `details` Hash doesn't contain the \"api_name\" key" do
           it "raises an error" do
-            expect { described_class.build(error_code: "INVALID_DATA", details: {}, status_code: 202, response: spy) }
-              .to raise_error(KeyError)
+            error = described_class.build(error_code: "INVALID_DATA", details: {}, status_code: 202, response: spy)
+
+            expect(error).to be_an_instance_of(ZohoCRM::API::InvalidDataError)
           end
         end
 
@@ -204,23 +205,42 @@ RSpec.describe ZohoCRM::API do
 
     context "when the `details` Hash doesn't contain the \"api_name\" key" do
       it "raises an error" do
-        expect { described_class.build(error_code: "INVALID_DATA", details: {}, status_code: 202, response: spy) }
-          .to raise_error(KeyError)
+        error = described_class.build(error_code: "INVALID_DATA", details: {}, status_code: 202, response: spy)
+
+        expect(error).to have_attributes(
+          field_name: nil
+        )
       end
     end
 
-    context "when no message is passed as argument" do
+    context "when the `details` Hash doesn't contain the \"api_name\" key and have a message" do
+      let(:error_message) { "I'm an error message" }
+      it "raises an error" do
+        error = described_class.build(error_message, error_code: "INVALID_DATA", details: {}, status_code: 202, response: spy)
+
+        expect(error).to have_attributes(
+          message: error_message,
+          field_name: nil
+        )
+      end
+    end
+
+    context "when no message is passed as argument and `details` Hash contain an \"api_name\" key" do
+      let(:api_name) { "Account_Name" }
       let(:error) do
         described_class.new(
           error_code: "INVALID_DATA",
-          details: {"api_name" => "Account_Name"},
+          details: {"api_name" => api_name},
           status_code: 202,
           response: spy
         )
       end
 
       it "generates an error message" do
-        expect(error.message).to eq("Invalid data for field: \"Account_Name\"")
+        expect(error).to have_attributes(
+          message: "Zoho CRM API error -- code: \"INVALID_DATA\" - HTTP status code: 202 - Invalid data for field: \"Account_Name\"",
+          field_name: api_name
+        )
       end
     end
   end

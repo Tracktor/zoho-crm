@@ -79,6 +79,7 @@ module ZohoCRM
 
         if data["status"] == "error"
           raise ZohoCRM::API::APIRequestError.build(
+            data.fetch("message", nil),
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,
@@ -112,6 +113,7 @@ module ZohoCRM
 
         if data["status"] == "error"
           raise ZohoCRM::API::APIRequestError.build(
+            data.fetch("message", nil),
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,
@@ -152,6 +154,7 @@ module ZohoCRM
 
         if data["status"] == "error"
           raise ZohoCRM::API::APIRequestError.build(
+            data.fetch("message", nil),
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,
@@ -180,6 +183,7 @@ module ZohoCRM
 
         if data["status"] == "error"
           raise ZohoCRM::API::APIRequestError.build(
+            data.fetch("message", nil),
             error_code: data["code"],
             details: data["details"],
             status_code: response.status.code,

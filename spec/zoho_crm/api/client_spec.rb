@@ -172,18 +172,42 @@ RSpec.describe ZohoCRM::API::Client do
       end
     end
 
-    context "when the request fails with an \"INVALID_DATA\" error_code" do
+    context "when the resquest fails with an \"INVALID_DATA\" error code and no details" do
       subject(:client) { described_class.new(spy) }
 
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
-          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {}, "message" =>  "an error message", "status" => "error"}]},
         })
 
         allow(client).to receive(:post).and_return(fake_response)
 
         expect { client.create({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
+          expect(error.message).to eq("an error message")
+          expect(error.field_name).to eq(nil)
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"INVALID_DATA\" error_code and details" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        api_name = "First_Name"
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => api_name}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:post).and_return(fake_response)
+
+        expect { client.create({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
+          expect(error.field_name).to eq(api_name)
           expect(error.error_code).to eq("INVALID_DATA")
           expect(error.details).to eq({"api_name" => "First_Name"})
           expect(error.status_code).to eq(202)
@@ -299,18 +323,42 @@ RSpec.describe ZohoCRM::API::Client do
       end
     end
 
-    context "when the request fails with an \"INVALID_DATA\" error_code" do
+    context "when the resquest fails with an \"INVALID_DATA\" error code and no details" do
       subject(:client) { described_class.new(spy) }
 
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
-          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {}, "message" =>  "an error message", "status" => "error"}]},
         })
 
         allow(client).to receive(:put).and_return(fake_response)
 
         expect { client.update("42", {}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
+          expect(error.message).to eq("an error message")
+          expect(error.field_name).to eq(nil)
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"INVALID_DATA\" error_code and details" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        api_name = "First_Name"
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => api_name}, "status" => "error"}]},
+        })
+
+        allow(client).to receive(:put).and_return(fake_response)
+
+        expect { client.update("42", {}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
+          expect(error.field_name).to eq(api_name)
           expect(error.error_code).to eq("INVALID_DATA")
           expect(error.details).to eq({"api_name" => "First_Name"})
           expect(error.status_code).to eq(202)
@@ -488,19 +536,43 @@ RSpec.describe ZohoCRM::API::Client do
       end
     end
 
-    context "when the request fails with an \"INVALID_DATA\" error_code" do
+    context "when the resquest fails with an \"INVALID_DATA\" error code and no details" do
       subject(:client) { described_class.new(spy) }
 
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
-          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {}, "message" =>  "an error message", "status" => "error"}]},
+        })
+
+        allow(client).to receive(:post).and_return(fake_response)
+
+        expect { client.upsert({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
+          expect(error.message).to eq("an error message")
+          expect(error.field_name).to eq(nil)
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+
+    context "when the request fails with an \"INVALID_DATA\" error_code and details" do
+      subject(:client) { described_class.new(spy) }
+
+      it "raises an error", aggregate_failures: true do
+        api_name =  "First_Name"
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => api_name}, "status" => "error"}]},
         })
 
         allow(client).to receive(:post).and_return(fake_response)
 
         expect { client.upsert({}, module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.field_name).to eq(api_name)
           expect(error.details).to eq({"api_name" => "First_Name"})
           expect(error.status_code).to eq(202)
           expect(error.response).to eq(fake_response)
@@ -571,17 +643,40 @@ RSpec.describe ZohoCRM::API::Client do
       end
     end
 
-    context "when the request fails with an \"INVALID_DATA\" error_code" do
+    context "when the resquest fails with an \"INVALID_DATA\" error code and no details" do
+      subject(:client) { described_class.new(spy) }
+
       it "raises an error", aggregate_failures: true do
         fake_response = spy("Response", {
           status: spy(code: 202),
-          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => "First_Name"}, "status" => "error"}]},
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {}, "message" =>  "an error message", "status" => "error"}]},
+        })
+
+        allow(client).to receive(:delete).and_return(fake_response)
+
+        expect { client.destroy("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
+          expect(error.message).to eq("an error message")
+          expect(error.field_name).to eq(nil)
+          expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.details).to eq({})
+          expect(error.status_code).to eq(202)
+          expect(error.response).to eq(fake_response)
+        end
+      end
+    end
+    context "when the request fails with an \"INVALID_DATA\" error_code" do
+      it "raises an error", aggregate_failures: true do
+        api_name = "First_Name"
+        fake_response = spy("Response", {
+          status: spy(code: 202),
+          parse: {"data" => [{"code" => "INVALID_DATA", "details" => {"api_name" => api_name}, "status" => "error"}]},
         })
 
         allow(client).to receive(:delete).and_return(fake_response)
 
         expect { client.destroy("42", module_name: "Contacts") }.to raise_error(ZohoCRM::API::InvalidDataError) do |error|
           expect(error.error_code).to eq("INVALID_DATA")
+          expect(error.field_name).to eq(api_name)
           expect(error.details).to eq({"api_name" => "First_Name"})
           expect(error.status_code).to eq(202)
           expect(error.response).to eq(fake_response)
