@@ -4,6 +4,15 @@ Changelog
 Unreleased
 ----------
 
+[v0.4.3](https://github.com/Tracktor/zoho-crm/tree/v0.4.3) (2020-10-28)
+-------------------------------------------------------------------------
+
+### Fixes
+
+- FIX creation of `ZohoCRM::API::InvalidDataError` when we don't have any `details`
+  key on the response.
+
+
 [v0.4.2](https://github.com/Tracktor/zoho-crm/tree/v0.4.2) (2020-06-15)
 -------------------------------------------------------------------------
 
