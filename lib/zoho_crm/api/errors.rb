@@ -107,7 +107,7 @@ module ZohoCRM
           raise Error.new(%(expected error_code to be "INVALID_DATA" but got #{error_code.inspect}))
         end
 
-        @field_name = details.fetch("api_name")
+        @field_name = details.fetch("api_name", nil)
 
         super
       end
@@ -115,7 +115,13 @@ module ZohoCRM
       protected
 
       def build_message
-        "Invalid data for field: #{field_name.inspect}"
+        msg = "Zoho CRM API error -- code: #{error_code.inspect} - HTTP status code: #{status_code}"
+
+        if details.key?("api_name")
+          "#{msg} - Invalid data for field: #{field_name.inspect}"
+        else
+          msg
+        end
       end
     end
 
